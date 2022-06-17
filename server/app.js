@@ -4,29 +4,26 @@ const dotenv = require('dotenv');
 dotenv.config();
 const cookieParser = require('cookie-parser');
 // const indexRouter = require('./routes/Index');
-// const { sequelize } = require('./models/Index');
+const { sequelize } = require('./models/index');
 
 const app = express();
 const port = process.env.PORT || 80;
 
-//cors 옵션 설정
 const corsOptions = {
     origin: 'http://localhost:3000',
     credentials: true,
 };
-//주석!!!!
-//데이터베이스 연결
-// sequelize
-//     .sync({ force: false })
-//     .then(() => {
-//         console.log('데이터베이스 연결 성공');
-//     })
-//     .catch((err) => {
-//         console.error(err);
-//     });
 
-// app.use(helmet());
-// app.use(morgan('dev'));
+//데이터베이스 연결
+sequelize
+    .sync({ force: false })
+    .then(() => {
+        console.log('데이터베이스 연결 성공');
+    })
+    .catch((err) => {
+        console.error(err);
+    });
+
 app.use(express.json()); // json 파싱
 app.use(express.urlencoded({ extended: false })); // uri 파싱
 app.use(cors(corsOptions));
