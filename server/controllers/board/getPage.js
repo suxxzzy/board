@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
         //**삭제된 게시물은 가지고 오지 말 것 */
         //검색 없이 게시물 요청한 경우
         if (!title && !author) {
-            const { rows } = await board.findAndCountAll({
+            const { count, rows } = await board.findAndCountAll({
                 where: { DISCD: 0 },
                 attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
                 include: [
@@ -23,15 +23,14 @@ module.exports = async (req, res) => {
                 limit: 10,
                 order: [['CRTIME', 'DESC']],
             });
-            console.log('게시물 목록 배열', rows);
             return res.status(200).json({
-                data: { board: rows },
+                data: { board: rows, count },
                 message: `${page}페이지 게시물을 가져왔습니다`,
             });
         }
         //검색 조건: 제목
         if (title) {
-            const { rows } = await board.findAndCountAll({
+            const { count, rows } = await board.findAndCountAll({
                 where: { DISCD: 0, TITLE: { [Op.like]: `%${title}%` } },
                 attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
                 include: [
@@ -41,9 +40,8 @@ module.exports = async (req, res) => {
                 limit: 10,
                 order: [['CRTIME', 'DESC']],
             });
-            console.log('게시물 목록 배열', rows);
             return res.status(200).json({
-                data: { board: rows },
+                data: { board: rows, count },
                 message: `${page}페이지 게시물을 가져왔습니다`,
             });
         }
@@ -51,7 +49,7 @@ module.exports = async (req, res) => {
         if (author) {
             //작성자 아이디를 바탕으로 작성자의 pk값을 찾는다
             const writer = await user.findOne({ where: { USERID: author } });
-            const { rows } = await board.findAndCountAll({
+            const { count, rows } = await board.findAndCountAll({
                 where: { DISCD: 0, UID: writer.UID },
                 attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
                 include: [
@@ -61,9 +59,8 @@ module.exports = async (req, res) => {
                 limit: 10,
                 order: [['CRTIME', 'DESC']],
             });
-            console.log('게시물 목록 배열', rows);
             return res.status(200).json({
-                data: { board: rows },
+                data: { board: rows, count },
                 message: `${page}페이지 게시물을 가져왔습니다`,
             });
         }

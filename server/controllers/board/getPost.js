@@ -34,6 +34,13 @@ module.exports = async (req, res) => {
         //존재하는 게시물의 경우
         //게시물 제목, 작성자 아이디, 작성 시각, 작성한 내용,
         // 첨부파일(클릭하면 파일 다운받을 수 있음)
+
+        //조회수 1 올려야 함
+        board.increment('VIEWCOUNT', {
+            by: 1,
+            where: { BID: postID },
+        });
+
         return res.status(200).json({
             data: { post },
             message: `${postID}번 게시물을 가져왔습니다`,
