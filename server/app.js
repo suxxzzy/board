@@ -3,7 +3,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 dotenv.config();
 const cookieParser = require('cookie-parser');
-// const indexRouter = require('./routes/Index');
+const indexRouter = require('./routes/index');
 const { sequelize } = require('./models/index');
 
 const app = express();
@@ -30,7 +30,7 @@ app.use(cors(corsOptions));
 app.use(cookieParser());
 
 //모든 루트 요청은 indexRouter로!
-// app.use('/', indexRouter);
+app.use('/', indexRouter);
 
 //배포 환경에서 정상 응답 받는지 테스트하는 코드
 app.get('/', (req, res) => {
