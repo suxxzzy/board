@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
-import Button from '../components/Button';
+// import SignButton from '../components/Button';
 
 const Container = styled.div`
     border: 1px solid black;
@@ -44,6 +44,14 @@ const ButtonList = styled.div`
 `;
 
 function Board() {
+    //1회만 새로고침
+    window.onload = function () {
+        if (!window.location.hash) {
+            window.location = window.location + '#loaded';
+            window.location.reload();
+        }
+    };
+    window.onload();
     const [isLoading, setIsLoading] = useState(true);
     const [board, setBoard] = useState([]);
     useEffect(() => {
@@ -74,8 +82,8 @@ function Board() {
                 {isLoading ? <LoadingIndicator /> : <PostList list={board} />}
             </Table>
             <ButtonList>
-                <Button>삭제</Button>
-                <Button>등록</Button>
+                {/* <Button>삭제</Button>
+                <Button>등록</Button> */}
             </ButtonList>
         </Container>
     );

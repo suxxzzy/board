@@ -11,6 +11,10 @@ module.exports = {
     },
     sendAccessToken: (res, accessToken) => {
         const cookieOptions = {
+            httpOnly: true,
+            sameSite: 'none',
+            secure: true,
+            domain: 'localhost',
             path: '/',
             maxAge: 1000 * 60 * 60 * 2,
         };

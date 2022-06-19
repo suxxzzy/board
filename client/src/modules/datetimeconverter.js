@@ -1,4 +1,4 @@
-module.exports = (date) => {
+export const timeConverter = (date) => {
     //주어진 날짜를 slice
     const yyyymmdd = date.slice(0, 8);
     //현재 시각정보를 위 형식으로

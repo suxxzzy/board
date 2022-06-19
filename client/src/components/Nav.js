@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -24,17 +25,45 @@ const NavComponent = styled.nav`
         }
     }
 `;
-
+//로컬스토리지에 userid가 있으면 로그아웃, 게시판 메뉴 보이기. 새로고침!!
 function Login() {
+    const handleLogout = () => {
+        console.log('로그아웃 요청');
+        //로컬스토리지 삭제
+        //axios 요청하여 쿠키 파괴
+        axios
+            .post(
+                `${process.env.REACT_APP_API_URL}/user/logout`,
+                {},
+                { withCredentials: true },
+            )
+            .then((res) => {
+                window.localStorage.removeItem('userID');
+            });
+    };
     return (
         <NavComponent>
             <ul>
-                <Link to="/">
-                    <li>로그인</li>
-                </Link>
-                <Link to="/board">
-                    <li>게시판</li>
-                </Link>
+                {window.localStorage.getItem('userID') ? (
+                    <>
+                        <li onClick={handleLogout}>로그아웃</li>
+                        <Link to="/board">
+                            <li>게시판</li>
+                        </Link>
+                    </>
+                ) : (
+                    <>
+                        <Link to="/signup">
+                            <li>회원가입</li>
+                        </Link>
+                        <Link to="/">
+                            <li>로그인</li>
+                        </Link>
+                        <Link to="/board">
+                            <li>게시판</li>
+                        </Link>
+                    </>
+                )}
             </ul>
         </NavComponent>
     );

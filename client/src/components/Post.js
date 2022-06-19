@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import timeConverter from '../modules/datetimeconverter';
+import { timeConverter } from '../modules/datetimeconverter';
 
 const Row = styled.div`
     display: table-row;
@@ -12,7 +12,7 @@ const Col = styled.div`
     text-align: center;
 `;
 
-function Post({ key, no, title, author, createdAt, viewCount }) {
+function Post({ no, title, author, createdAt, viewCount }) {
     return (
         <Row>
             <Col>

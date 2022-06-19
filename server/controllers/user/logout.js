@@ -7,7 +7,12 @@ module.exports = async (req, res) => {
         return res
             .status(200)
             .cookie('accessToken', null, {
+                httpOnly: true,
+                sameSite: 'none',
+                secure: true,
+                domain: 'localhost',
                 path: '/',
+                maxAge: 1000 * 60 * 60 * 2,
                 maxAge: 0,
             })
             .json({ message: '로그아웃에 성공했습니다' });

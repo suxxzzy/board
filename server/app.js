@@ -1,3 +1,5 @@
+const https = require('https');
+const fs = require('fs');
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -51,7 +53,14 @@ app.use((err, req, res, next) => {
     });
 });
 
-//서버 포트 설정
-app.listen(port, () => {
-    console.log(`${port}번 포트에서 대기중`);
-});
+https
+    .createServer(
+        {
+            key: fs.readFileSync(__dirname + '/localhost+2-key.pem', 'utf-8'),
+            cert: fs.readFileSync(__dirname + '/localhost+2.pem', 'utf-8'),
+        },
+        app,
+    )
+    .listen(port, () => {
+        console.log(`${port}번 포트에서 대기중`);
+    });

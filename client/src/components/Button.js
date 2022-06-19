@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const ButtonContainer = styled.button`
+export const SignButton = styled.button`
     border: none;
     width: 6rem;
     height: 40px;
@@ -11,8 +11,8 @@ const ButtonContainer = styled.button`
     }
 `;
 
-function Button({ children }) {
-    return <ButtonContainer>{children}</ButtonContainer>;
-}
+// function Button({ children, handleLogin }) {
+//     return <ButtonContainer onClick={handleLogin}>{children}</ButtonContainer>;
+// }
 
-export default Button;
+// export default Button;
