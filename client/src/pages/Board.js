@@ -6,7 +6,6 @@ import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
 import Pagination from '../components/Pagination';
 import Searchbar from '../components/Searchbar';
-// import SignButton from '../components/Button';
 
 const Container = styled.div`
     border: 1px solid black;
@@ -15,9 +14,6 @@ const Container = styled.div`
     justify-content: flex-start;
     align-items: center;
     height: 90%;
-    > h3 {
-        border: 1px solid red;
-    }
 `;
 
 const Table = styled.div`
@@ -96,14 +92,20 @@ function Board() {
                     <PostList list={loadedArticles} />
                 )}
             </Table>
-            <ButtonList>
-                <button>삭제</button>
-                <button>등록</button>
-            </ButtonList>
+            {/*로그인 한 상태에서만 보이도록*/}
+            {window.localStorage.getItem('userID') ? (
+                <ButtonList>
+                    <button>삭제</button>
+                    <Link to="/write">
+                        <button>등록</button>
+                    </Link>
+                </ButtonList>
+            ) : null}
             <Pagination
                 totalArticles={totalArticles}
+                currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
-            ></Pagination>
+            />
             <Searchbar
                 currentPage={currentPage}
                 setLoadedArticles={setLoadedArticles}

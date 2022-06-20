@@ -1,4 +1,4 @@
-export const timeConverter = (date) => {
+export const timeConverter_Board = (date) => {
     //주어진 날짜를 slice
     const yyyymmdd = date.slice(0, 8);
     //현재 시각정보를 위 형식으로
@@ -16,4 +16,14 @@ export const timeConverter = (date) => {
     }
     // 그외의 경우는 yyyy-mm-dd형식으로 표시
     return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+};
+
+export const timeConverter_Post = (date) => {
+    const yyyy = date.slice(0, 4);
+    const mm = date.slice(4, 6);
+    const dd = date.slice(6, 8);
+    const hour = date.slice(8, 10);
+    const min = date.slice(10, 12);
+    const sec = date.slice(12, 14);
+    return `${yyyy}-${mm}-${dd} ${hour}:${min}:${sec}`;
 };

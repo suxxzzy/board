@@ -44,10 +44,14 @@ function Login() {
             return;
         } else {
             axios
-                .post(`${process.env.REACT_APP_API_URL}/user/login`, {
-                    id: loginInfo.id,
-                    password: loginInfo.password,
-                })
+                .post(
+                    `${process.env.REACT_APP_API_URL}/user/login`,
+                    {
+                        id: loginInfo.id,
+                        password: loginInfo.password,
+                    },
+                    { withCredentials: true },
+                )
                 .then((res) => {
                     window.localStorage.setItem('userID', res.data.data.userid);
                     alert('로그인 되었습니다');

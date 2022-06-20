@@ -36,27 +36,40 @@ const PageSpan = styled.span`
     }
 `;
 //페이지 하단의 1-10까지 탐색할 수 있는 바.
-const Pagination = ({ totalArticles, setCurrentPage }) => {
-    console.log('페이지네이션 컴포넌트 총 게시글 수', totalArticles);
-    if (totalArticles === 0) return null;
+const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
     const pageNumbers = [];
     for (let i = 1; i <= Math.ceil(totalArticles / 10); i++) {
         pageNumbers.push(i);
     }
-    console.log(pageNumbers);
     return (
         <div>
             <nav>
                 <PageUl className="pagination">
-                    {pageNumbers.map((page) => (
+                    {totalArticles !== 0 ? (
+                        pageNumbers.map((page) => (
+                            <PageLi
+                                key={page}
+                                onClick={() => setCurrentPage(page)}
+                                className="page-item"
+                                style={{
+                                    backgroundColor:
+                                        page === currentPage ? 'green' : 'gray',
+                                }}
+                            >
+                                <PageSpan className="page-link">
+                                    {page}
+                                </PageSpan>
+                            </PageLi>
+                        ))
+                    ) : (
                         <PageLi
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
+                            key={1}
+                            onClick={() => setCurrentPage(1)}
                             className="page-item"
                         >
-                            <PageSpan className="page-link">{page}</PageSpan>
+                            <PageSpan className="page-link">1</PageSpan>
                         </PageLi>
-                    ))}
+                    )}
                 </PageUl>
             </nav>
         </div>

@@ -1,6 +1,6 @@
+import axios from 'axios';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.section`
@@ -34,39 +34,39 @@ const Container = styled.section`
     }
 `;
 
-function Write() {
+function Modify() {
+    const location = useLocation();
     const navigate = useNavigate();
-    const [title, setTitle] = useState('');
-    const [content, setContent] = useState('');
+    //수정 전 내용 받아와 저장
+    const [post, setPost] = useState(location.state.post);
 
+    //수정 요청
+    const handleModify = () => {
+        axios.post();
+    };
+
+    //수정 취소
     const goBack = () => {
         navigate(-1);
     };
 
-    //제목, 내용, 작성 시각, 첨부파일(여러개 일 수 있음)
-    const handlePost = () => {};
-
     return (
         <Container>
-            <h2>게시글 등록</h2>
+            <h2>게시글 수정</h2>
             <label htmlFor="title">제목</label>
-            <input
-                id="title"
-                type="text"
-                placeholder="제목을 입력해주세요"
-            ></input>
+            <input id="title" type="text" value={post.title}></input>
             <label htmlFor="content">내용</label>
-            <textarea id="content" placeholder="내용을 입력해주세요"></textarea>
+            <textarea id="content" value={post.content}></textarea>
             <section>
                 <label>첨부파일</label>
                 <input type="file"></input>
             </section>
             <section id="button">
-                <button onClick={goBack}>작성취소</button>
-                <button onClick={handlePost}>작성완료</button>
+                <button onClick={goBack}>수정취소</button>
+                <button onClick={handleModify}>수정완료</button>
             </section>
         </Container>
     );
 }
 
-export default Write;
+export default Modify;

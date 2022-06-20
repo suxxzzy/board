@@ -26,11 +26,8 @@ const NavComponent = styled.nav`
     }
 `;
 //로컬스토리지에 userid가 있으면 로그아웃, 게시판 메뉴 보이기. 새로고침!!
-function Login() {
+function Nav() {
     const handleLogout = () => {
-        console.log('로그아웃 요청');
-        //로컬스토리지 삭제
-        //axios 요청하여 쿠키 파괴
         axios
             .post(
                 `${process.env.REACT_APP_API_URL}/user/logout`,
@@ -39,6 +36,7 @@ function Login() {
             )
             .then((res) => {
                 window.localStorage.removeItem('userID');
+                window.location.reload();
             });
     };
     return (
@@ -69,4 +67,4 @@ function Login() {
     );
 }
 
-export default Login;
+export default Nav;

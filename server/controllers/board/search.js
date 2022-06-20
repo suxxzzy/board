@@ -45,15 +45,17 @@ module.exports = async (req, res) => {
                     .status(400)
                     .json({ message: '검색할 작성자명을 입력해주세요' });
             }
-            //작성자 아이디를 바탕으로 작성자의 pk값을 찾는다
-            const writer = await user.findOne({
-                where: { USERID: { [Op.like]: `%${keyword}%` } },
-            });
+
             const { count, rows } = await board.findAndCountAll({
-                where: { DISCD: 0, UID: writer.UID },
+                where: { DISCD: 0 },
                 attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
                 include: [
-                    { model: user, attributes: ['USERID'], as: 'UID_user' },
+                    {
+                        model: user,
+                        attributes: ['USERID'],
+                        as: 'UID_user',
+                        where: { USERID: { [Op.like]: `%${keyword}%` } },
+                    },
                 ],
                 offset: (parseInt(page) - 1) * 10,
                 limit: 10,

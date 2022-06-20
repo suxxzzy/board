@@ -16,7 +16,7 @@ module.exports = async (req, res) => {
 
         //아이디가 존재하는 경우
         const post = await board.findByPk(postID, {
-            attributes: ['BID', 'TITLE', 'CONTENT', 'CRTIME', 'DISCD'],
+            attributes: ['BID', 'TITLE', 'CONTENT', 'CRTIME', 'DISCD', 'UID'],
             include: [
                 { model: user, attributes: ['USERID'], as: 'UID_user' },
                 {
