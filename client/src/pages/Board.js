@@ -55,30 +55,57 @@ function Board() {
     const [currentPage, setCurrentPage] = useState(1);
     const [loadedArticles, setLoadedArticles] = useState([]);
     const [totalArticles, setTotalArticles] = useState(0);
+    const [checkedPosts, setCheckedPosts] = useState(
+        loadedArticles.map((el) => el.BID),
+    );
 
-    const paginationHandler = (currentPage) => {
-        axios
-            .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
-            .then((response) => {
-                console.log(response.data.data, '응답');
-                setLoadedArticles(response.data.data.board);
-                setTotalArticles(response.data.data.count);
-                setIsLoading(false);
-            });
-    };
+    console.log(typeof loadedArticles.map((el) => el.BID)[0]);
 
     useEffect(() => {
         console.log('useEffect 호출');
         setIsLoading(true);
         paginationHandler(currentPage);
     }, [currentPage]);
+
+    const paginationHandler = (currentPage) => {
+        axios
+            .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
+            .then((response) => {
+                setLoadedArticles(response.data.data.board);
+                setTotalArticles(response.data.data.count);
+                setIsLoading(false);
+            });
+    };
+
+    //전체 체크
+    const handleAllCheck = (checked) => {
+        if (checked) {
+            setCheckedPosts(loadedArticles.map((el) => el.BID));
+        } else {
+            setCheckedPosts([]);
+        }
+    };
+
+    //개별 체크
+    const handleCheckChange = (checked, id) => {
+        if (checked) {
+            setCheckedPosts([...checkedPosts, id]);
+        } else {
+            setCheckedPosts(checkedPosts.filter((el) => el.BID !== id));
+        }
+    };
+
     return (
         <Container>
             <h3>게시판</h3>
             <Table>
                 <RowHeader>
                     <Col>
-                        <input type="checkbox"></input>
+                        <input
+                            type="checkbox"
+                            checked={checkedPosts.length === 10 ? true : false}
+                            onChange={(e) => handleAllCheck(e.target.checked)}
+                        ></input>
                     </Col>
                     <Col>No.</Col>
                     <Col>제목</Col>
@@ -89,7 +116,11 @@ function Board() {
                 {isLoading ? (
                     <LoadingIndicator />
                 ) : (
-                    <PostList list={loadedArticles} />
+                    <PostList
+                        list={loadedArticles}
+                        handleCheckChange={handleCheckChange}
+                        checkedPosts={checkedPosts}
+                    />
                 )}
             </Table>
             {/*로그인 한 상태에서만 보이도록*/}

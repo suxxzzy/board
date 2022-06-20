@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Post from './Post';
 
-function PostList({ list = [] }) {
+function PostList({ list = [], handleCheckChange, checkedPosts }) {
     const navigate = useNavigate();
     const [postID, setPostID] = useState(0);
     const [isNavigate, setIsNavigate] = useState(false);
@@ -29,9 +29,11 @@ function PostList({ list = [] }) {
         list.map((post, idx) => {
             return (
                 <Post
+                    handleCheckChange={handleCheckChange}
+                    checkedPosts={checkedPosts}
                     onClick={() => handlePostDetail(post.BID)}
                     key={post.BID}
-                    no={idx + 1}
+                    no={Number(post.BID)}
                     title={post.TITLE}
                     author={post.UID_user.USERID}
                     createdAt={post.CRTIME}

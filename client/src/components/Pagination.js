@@ -35,12 +35,24 @@ const PageSpan = styled.span`
         background-color: #688268;
     }
 `;
+
+const setPageNumbers = () => {
+    const pageNumbers = [];
+};
+
 //페이지 하단의 1-10까지 탐색할 수 있는 바.
 const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
-    const pageNumbers = [];
+    //한번에 보여줄 페이지 개수를 제한할 것.
+    const maxPages = 4;
+
+    let startPage = currentPage;
+    // 4배수 미만인 경우
+    let endPage;
+    const pageNumbers = ['<'];
     for (let i = 1; i <= Math.ceil(totalArticles / 10); i++) {
         pageNumbers.push(i);
     }
+    pageNumbers.push('>');
     return (
         <div>
             <nav>

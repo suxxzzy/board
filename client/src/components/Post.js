@@ -12,11 +12,26 @@ const Col = styled.div`
     text-align: center;
 `;
 
-function Post({ onClick, no, title, author, createdAt, viewCount }) {
+function Post({
+    handleCheckChange,
+    checkedPosts,
+    onClick,
+    no,
+    title,
+    author,
+    createdAt,
+    viewCount,
+}) {
     return (
         <Row>
             <Col>
-                <input type="checkbox"></input>
+                <input
+                    type="checkbox"
+                    onChange={(e) => {
+                        handleCheckChange(e.target.checked, no);
+                    }}
+                    checked={checkedPosts.includes(Number(no))}
+                ></input>
             </Col>
             <Col>{no}</Col>
             <Col onClick={onClick}>{title}</Col>
