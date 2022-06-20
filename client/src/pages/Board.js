@@ -3,6 +3,8 @@ import styled from 'styled-components';
 import { useEffect, useState } from 'react';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
+import Pagination from '../Components/Pagination';
+import Searchbar from '../components/Searchbar';
 // import SignButton from '../components/Button';
 
 const Container = styled.div`
@@ -53,18 +55,25 @@ function Board() {
     };
     window.onload();
     const [isLoading, setIsLoading] = useState(true);
-    const [board, setBoard] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loadedArticles, setLoadedArticles] = useState([]);
+    const [totalArticles, setTotalArticles] = useState(0);
+
+    const paginationHandler = (currentPage) => {
+        axios
+            .get(`${REACT_APP_API_URL}/board?pages=${currentPage}`)
+            .then((response) => {
+                setLoadedArticles(response.data.boards.rows);
+                setTotalArticles(response.data.boards.count);
+                setIsLoading(false);
+            });
+    };
+
     useEffect(() => {
         console.log('useEffect 호출');
         setIsLoading(true);
-        axios
-            .get(`${process.env.REACT_APP_API_URL}/board?page=${1}`)
-            .then((res) => {
-                console.log('받아온 게시물들', res.data.data.board);
-                setBoard(res.data.data.board);
-                setIsLoading(false);
-            });
-    }, []);
+        paginationHandler(currentPage);
+    }, [currentPage]);
     return (
         <Container>
             <h3>게시판</h3>
@@ -79,12 +88,25 @@ function Board() {
                     <Col>게시일</Col>
                     <Col>조회수</Col>
                 </RowHeader>
-                {isLoading ? <LoadingIndicator /> : <PostList list={board} />}
+                {isLoading ? (
+                    <LoadingIndicator />
+                ) : (
+                    <PostList list={loadedArticles} />
+                )}
             </Table>
             <ButtonList>
                 {/* <Button>삭제</Button>
                 <Button>등록</Button> */}
             </ButtonList>
+            <Pagination
+                totalArticles={totalArticles}
+                setCurrentPage={setCurrentPage}
+            ></Pagination>
+            <Searchbar
+                currentPage={currentPage}
+                setLoadedArticles={setLoadedArticles}
+                setTotalArticles={setTotalArticles}
+            />
         </Container>
     );
 }
