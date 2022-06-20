@@ -85,46 +85,47 @@ const Pagination2 = ({ totalArticles, currentPage, setCurrentPage }) => {
     );
 };
 
+//https://codepen.io/imsontosh/pen/zmdGdj?editors=0010
 //페이지 하단의 1-10까지 탐색할 수 있는 바.
-const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
-    const pageNumbers = ['<'];
-    for (let i = 1; i <= Math.ceil(totalArticles / 10); i++) {
-        pageNumbers.push(i);
-    }
-    pageNumbers.push('>');
-    return (
-        <div>
-            <nav>
-                <PageUl className="pagination">
-                    {totalArticles !== 0 ? (
-                        pageNumbers.map((page) => (
-                            <PageLi
-                                key={page}
-                                onClick={() => setCurrentPage(page)}
-                                className="page-item"
-                                style={{
-                                    backgroundColor:
-                                        page === currentPage ? 'green' : 'gray',
-                                }}
-                            >
-                                <PageSpan className="page-link">
-                                    {page}
-                                </PageSpan>
-                            </PageLi>
-                        ))
-                    ) : (
-                        <PageLi
-                            key={1}
-                            onClick={() => setCurrentPage(1)}
-                            className="page-item"
-                        >
-                            <PageSpan className="page-link">1</PageSpan>
-                        </PageLi>
-                    )}
-                </PageUl>
-            </nav>
-        </div>
-    );
-};
+// const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
+//     const pageNumbers = ['<'];
+//     for (let i = 1; i <= Math.ceil(totalArticles / 10); i++) {
+//         pageNumbers.push(i);
+//     }
+//     pageNumbers.push('>');
+//     return (
+//         <div>
+//             <nav>
+//                 <PageUl className="pagination">
+//                     {totalArticles !== 0 ? (
+//                         pageNumbers.map((page) => (
+//                             <PageLi
+//                                 key={page}
+//                                 onClick={() => setCurrentPage(page)}
+//                                 className="page-item"
+//                                 style={{
+//                                     backgroundColor:
+//                                         page === currentPage ? 'green' : 'gray',
+//                                 }}
+//                             >
+//                                 <PageSpan className="page-link">
+//                                     {page}
+//                                 </PageSpan>
+//                             </PageLi>
+//                         ))
+//                     ) : (
+//                         <PageLi
+//                             key={1}
+//                             onClick={() => setCurrentPage(1)}
+//                             className="page-item"
+//                         >
+//                             <PageSpan className="page-link">1</PageSpan>
+//                         </PageLi>
+//                     )}
+//                 </PageUl>
+//             </nav>
+//         </div>
+//     );
+// };
 
-export default Pagination;
+// export default Pagination;
