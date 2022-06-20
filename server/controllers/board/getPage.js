@@ -3,67 +3,29 @@ const { sequelize } = require('../../models/index');
 const initModels = require('../../models/init-models');
 const { user, board } = initModels(sequelize);
 const { Op } = require('sequelize');
+const { query } = require('express');
 
 module.exports = async (req, res) => {
     try {
-        const { title, author, page } = req.query;
+        console.log('getpage');
+        console.log('요청들어옴', req, query);
+        const { page } = req.query;
         if (!page) {
             return res.status(400).json({ message: '페이지 번호가 없습니다' });
         }
         //**삭제된 게시물은 가지고 오지 말 것 */
-        //검색 없이 게시물 요청한 경우
-        if (!title && !author) {
-            const { count, rows } = await board.findAndCountAll({
-                where: { DISCD: 0 },
-                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
-                include: [
-                    { model: user, attributes: ['USERID'], as: 'UID_user' },
-                ],
-                offset: (page - 1) * 10,
-                limit: 10,
-                order: [['CRTIME', 'DESC']],
-            });
-            return res.status(200).json({
-                data: { board: rows, count },
-                message: `${page}페이지 게시물을 가져왔습니다`,
-            });
-        }
-        //검색 조건: 제목
-        if (title) {
-            const { count, rows } = await board.findAndCountAll({
-                where: { DISCD: 0, TITLE: { [Op.like]: `%${title}%` } },
-                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
-                include: [
-                    { model: user, attributes: ['USERID'], as: 'UID_user' },
-                ],
-                offset: (page - 1) * 10,
-                limit: 10,
-                order: [['CRTIME', 'DESC']],
-            });
-            return res.status(200).json({
-                data: { board: rows, count },
-                message: `${page}페이지 게시물을 가져왔습니다`,
-            });
-        }
-        //검색 조건: 작성자
-        if (author) {
-            //작성자 아이디를 바탕으로 작성자의 pk값을 찾는다
-            const writer = await user.findOne({ where: { USERID: author } });
-            const { count, rows } = await board.findAndCountAll({
-                where: { DISCD: 0, UID: writer.UID },
-                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
-                include: [
-                    { model: user, attributes: ['USERID'], as: 'UID_user' },
-                ],
-                offset: (page - 1) * 10,
-                limit: 10,
-                order: [['CRTIME', 'DESC']],
-            });
-            return res.status(200).json({
-                data: { board: rows, count },
-                message: `${page}페이지 게시물을 가져왔습니다`,
-            });
-        }
+        const { count, rows } = await board.findAndCountAll({
+            where: { DISCD: 0 },
+            attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
+            include: [{ model: user, attributes: ['USERID'], as: 'UID_user' }],
+            offset: (parseInt(page) - 1) * 10,
+            limit: 10,
+            order: [['CRTIME', 'DESC']],
+        });
+        return res.status(200).json({
+            data: { board: rows, count },
+            message: `${page}페이지 게시물을 가져왔습니다`,
+        });
     } catch (e) {
         console.error(e);
         return res

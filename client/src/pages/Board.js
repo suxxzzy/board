@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
-import Pagination from '../Components/Pagination';
+import Pagination from '../components/Pagination';
 import Searchbar from '../components/Searchbar';
 // import SignButton from '../components/Button';
 
@@ -62,10 +62,11 @@ function Board() {
 
     const paginationHandler = (currentPage) => {
         axios
-            .get(`${REACT_APP_API_URL}/board?pages=${currentPage}`)
+            .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
             .then((response) => {
-                setLoadedArticles(response.data.boards.rows);
-                setTotalArticles(response.data.boards.count);
+                console.log(response.data.data, '응답');
+                setLoadedArticles(response.data.data.board);
+                setTotalArticles(response.data.data.count);
                 setIsLoading(false);
             });
     };

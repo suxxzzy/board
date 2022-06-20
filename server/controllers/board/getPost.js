@@ -5,6 +5,7 @@ const { user, board, attachmentfile } = initModels(sequelize);
 
 module.exports = async (req, res) => {
     try {
+        console.log('getpost');
         //게시물의 아이디를 받아와야 한다.
         const { id: postID } = req.params;
         if (!postID) {

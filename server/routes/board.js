@@ -3,7 +3,8 @@ const router = express.Router();
 
 const board = require('../controllers/board/index');
 
-router.get('/', board.getPage);
+router.get('/search', board.search);
+router.get('/', board.getPage); //이거때문에 여기로 요청 들어온 거임..
 router.get('/:id', board.getPost);
 // router.post('/', board.post);
 // router.patch('/:id', board.patch);

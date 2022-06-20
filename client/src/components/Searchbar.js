@@ -39,7 +39,9 @@ function Searchbar({ currentPage, setLoadedArticles, setTotalArticles }) {
             return;
         }
         //옵션에 따라 엔드포인트가 달라짐
-        const endpoint = `${REACT_APP_API_URL}/board/search?option=${
+        const endpoint = `${
+            process.env.REACT_APP_API_URL
+        }/board/search?option=${
             option === '제목' ? 'title' : 'author'
         }&keyword=${keyword}&page=${currentPage}`;
 
@@ -47,9 +49,9 @@ function Searchbar({ currentPage, setLoadedArticles, setTotalArticles }) {
             .get(endpoint)
             .then((res) => {
                 //검색 결과를 잘 받아왔으면 전체 게시물 개수와 특정 페이지에 대한 게시물을 받아온다
-                setLoadedArticles(res.data.data.rows);
+                setLoadedArticles(res.data.data.board);
                 setTotalArticles(res.data.data.count);
-                // setKeyword('');
+                setKeyword('');
             })
             .catch(() => {
                 setLoadedArticles([]);
@@ -66,7 +68,7 @@ function Searchbar({ currentPage, setLoadedArticles, setTotalArticles }) {
             <input
                 type="text"
                 placeholder="검색어를 입력하세요"
-                onKeyPress={(keyword) => handleKeyPress(e, keyword)}
+                onKeyPress={handleKeyPress}
                 onChange={handleChange}
                 value={keyword}
             ></input>
