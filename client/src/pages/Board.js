@@ -1,6 +1,7 @@
 import axios from 'axios';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
 import Pagination from '../Components/Pagination';
@@ -95,8 +96,8 @@ function Board() {
                 )}
             </Table>
             <ButtonList>
-                {/* <Button>삭제</Button>
-                <Button>등록</Button> */}
+                <button>삭제</button>
+                <button>등록</button>
             </ButtonList>
             <Pagination
                 totalArticles={totalArticles}
