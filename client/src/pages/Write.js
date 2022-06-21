@@ -99,13 +99,16 @@ function Write() {
                         {
                             FILENAME: e.target.files[0].name.split('.')[0],
                             EXT: e.target.files[0].name.split('.')[1],
-                            FILEPATH: '',
+                            FILEPATH: '', //*** */
                             SIZE: e.target.files[0].size,
                         },
                     ]);
                 });
             });
     };
+
+    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
+    const handleDeleteFile = () => {};
 
     //제목, 내용, 작성 시각, 첨부파일(여러개 일 수 있음)
     const handlePost = () => {
@@ -135,7 +138,7 @@ function Write() {
                 navigate('/board');
             });
     };
-
+    //https://heewon26.tistory.com/377
     return (
         <>
             {!window.localStorage.getItem('userID') ? (
@@ -181,7 +184,9 @@ function Write() {
                                 return (
                                     <a key={idx} href={attachmentfile.FILEPATH}>
                                         <li>{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</li>
-                                        <span onClick={handleDelete}>X</span>
+                                        <span onClick={handleDeleteFile}>
+                                            삭제
+                                        </span>
                                     </a>
                                 );
                             })}
