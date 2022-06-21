@@ -6,7 +6,9 @@ const board = require('../controllers/board/index');
 router.get('/search', board.search);
 router.get('/', board.getPage); //이거때문에 여기로 요청 들어온 거임..
 router.get('/:id', board.getPost);
+router.get('/presignedurl', board.getUrl);
 router.post('/', isAuth, board.post);
+
 router.patch('/:id', isAuth, board.patch);
 // //여러개를 삭제할 수도 있음: 그래서 patch 사용.
 router.patch('/', isAuth, board.delete);
