@@ -70,9 +70,10 @@ function Board() {
     const paginationHandler = (currentPage) => {
         axios
             .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
-            .then((response) => {
-                setLoadedArticles(response.data.data.board);
-                setTotalArticles(response.data.data.count);
+            .then((res) => {
+                console.log(res.data.data, '받아온 게시물 정보');
+                setLoadedArticles(res.data.data.board);
+                setTotalArticles(res.data.data.count);
                 setIsLoading(false);
             });
     };

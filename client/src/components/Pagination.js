@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const PageUl = styled.ul`
@@ -9,6 +9,14 @@ const PageUl = styled.ul`
     color: white;
     padding: 1px;
     background-color: #a3cca3;
+
+    .currentPage {
+        background-color: green;
+    }
+
+    .page {
+        background-color: #a3cca3;
+    }
 `;
 
 const PageLi = styled.li`
@@ -36,34 +44,55 @@ const PageSpan = styled.span`
     }
 `;
 
-const Pagination2 = ({ totalArticles, currentPage, setCurrentPage }) => {
-    const pageNumbers = ['<'];
-    //상위 컴포넌트로부터 현재 페이지 정보 전달받는다
-    //시작 페이지 정보
-    const startPage = currentPage - ((currentPage % 4) - 1);
-    //마지막 페이지 정보
-    //startPage의 첫 게시물부터 시작해 1-40개의 게시물을 받아오므로, 이에 따라 달라짐
-    const endPage = startPage + Math.ceil(totalArticles / 10) - 1;
+const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
+    //페이지 시작정보
+    const [start, setStart] = useState(currentPage - ((currentPage % 4) - 1));
+
     //페이지 번호 채우기
-    for (let i = startPage; i <= endPage; i++) {
+    const pageNumbers = [];
+    for (
+        let i = start;
+        i <= Math.min(start + 3, Math.ceil(totalArticles / 10));
+        i++
+    ) {
         pageNumbers.push(i);
     }
-    pageNumbers.push('>');
+
+    //이전의 4페이지 보여주는 함수
+    const gotoPrev = () => {
+        //만약에 시작 인덱스가 1이면, 작동하지 않는다
+        if (start === 1) {
+            return;
+        }
+        setStart(start - 4);
+        setCurrentPage(start - 4);
+    };
+
+    //다음의 페이지 보여주는 함수. 꼭 4페이지씩 안 나올수도 있다.
+    const gotoNext = () => {
+        if (pageNumbers.length < 4) {
+            return;
+        }
+
+        setStart(start + 4);
+        setCurrentPage(start + 4);
+    };
 
     return (
         <div>
             <nav>
                 <PageUl className="pagination">
+                    <PageLi onClick={gotoPrev}>&lt;&lt;</PageLi>
                     {totalArticles !== 0 ? (
                         pageNumbers.map((page) => (
                             <PageLi
                                 key={page}
                                 onClick={() => setCurrentPage(page)}
-                                className="page-item"
-                                style={{
-                                    backgroundColor:
-                                        page === currentPage ? 'green' : 'gray',
-                                }}
+                                className={
+                                    page === Number(currentPage)
+                                        ? 'currentPage'
+                                        : 'page'
+                                }
                             >
                                 <PageSpan className="page-link">
                                     {page}
@@ -79,53 +108,11 @@ const Pagination2 = ({ totalArticles, currentPage, setCurrentPage }) => {
                             <PageSpan className="page-link">1</PageSpan>
                         </PageLi>
                     )}
+                    <PageLi onClick={gotoNext}>&gt;&gt;</PageLi>
                 </PageUl>
             </nav>
         </div>
     );
 };
 
-//https://codepen.io/imsontosh/pen/zmdGdj?editors=0010
-//페이지 하단의 1-10까지 탐색할 수 있는 바.
-// const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
-//     const pageNumbers = ['<'];
-//     for (let i = 1; i <= Math.ceil(totalArticles / 10); i++) {
-//         pageNumbers.push(i);
-//     }
-//     pageNumbers.push('>');
-//     return (
-//         <div>
-//             <nav>
-//                 <PageUl className="pagination">
-//                     {totalArticles !== 0 ? (
-//                         pageNumbers.map((page) => (
-//                             <PageLi
-//                                 key={page}
-//                                 onClick={() => setCurrentPage(page)}
-//                                 className="page-item"
-//                                 style={{
-//                                     backgroundColor:
-//                                         page === currentPage ? 'green' : 'gray',
-//                                 }}
-//                             >
-//                                 <PageSpan className="page-link">
-//                                     {page}
-//                                 </PageSpan>
-//                             </PageLi>
-//                         ))
-//                     ) : (
-//                         <PageLi
-//                             key={1}
-//                             onClick={() => setCurrentPage(1)}
-//                             className="page-item"
-//                         >
-//                             <PageSpan className="page-link">1</PageSpan>
-//                         </PageLi>
-//                     )}
-//                 </PageUl>
-//             </nav>
-//         </div>
-//     );
-// };
-
-// export default Pagination;
+export default Pagination;
