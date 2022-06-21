@@ -51,9 +51,20 @@ function Modify() {
 
     //수정 요청
     const handleModify = () => {
-        axios.post(`${process.env.REACT_APP_API_URL}/board/${}`,{title,content},{withCredentials:true}).then(res=> {
-            
-        });
+        axios
+            .patch(
+                `${process.env.REACT_APP_API_URL}/board/${location.state.post.id}`,
+                { title, content },
+                { withCredentials: true },
+            )
+            .then((res) => {
+                alert('수정되었습니다');
+                navigate(`/board/${location.state.post.id}`, {
+                    state: {
+                        postID: location.state.post.id,
+                    },
+                });
+            });
     };
 
     //수정 취소

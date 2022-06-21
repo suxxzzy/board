@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
         const { deletes } = req.body;
         console.log(deletes, '삭제할 게시물들');
         //삭제할 게시물 id가 없다면, 삭제 거부
-        if (!deletes) {
+        if (deletes.length === 0) {
             return res
                 .status(400)
                 .json({ message: '삭제할 게시물이 없습니다' });

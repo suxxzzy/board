@@ -81,8 +81,8 @@ function Post() {
             });
     };
 
-    const goBack = () => {
-        navigate(-1);
+    const goToBoard = () => {
+        navigate('/board');
     };
 
     const handleModify = () => {
@@ -107,18 +107,16 @@ function Post() {
         axios
             .patch(
                 `${process.env.REACT_APP_API_URL}/board`,
-                { deletes: [post.id] },
+                { deletes: [{ UID: post.userpk, BID: post.id }] },
                 {
                     withCredentials: true,
                 },
             )
             .then((res) => {
-                //삭제 성공
                 alert('삭제되었습니다');
                 navigate('/board');
             })
             .catch((error) => {
-                //삭제 실패 메세지 띄우기
                 if (error.response) {
                     const { data } = error.response;
                     alert(data.message);
@@ -149,7 +147,7 @@ function Post() {
                 </section>
             </section>
             <section>
-                <button onClick={goBack}>목록</button>
+                <button onClick={goToBoard}>목록</button>
                 {Number(window.localStorage.getItem('userID')) ===
                 post.userpk ? (
                     <>

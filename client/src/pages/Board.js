@@ -58,12 +58,7 @@ function Board() {
     const [totalPosts, setTotalPosts] = useState(0);
     const [checkedPosts, setCheckedPosts] = useState([]);
 
-    // loadedPosts.map((el) => {
-    //     return { BID: el.BID, UID: el.UID };
-    // }),
-
     useEffect(() => {
-        console.log('useEffect 호출');
         setIsLoading(true);
         paginationHandler(currentPage);
     }, [currentPage]);
@@ -72,7 +67,6 @@ function Board() {
         axios
             .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
             .then((res) => {
-                console.log(res.data.data, '받아온 게시물 정보');
                 setLoadedPosts(res.data.data.board);
                 setTotalPosts(res.data.data.count);
                 setIsLoading(false);
@@ -81,7 +75,6 @@ function Board() {
 
     //전체 체크
     const handleAllCheck = (checked) => {
-        console.log('체크 요청', checked);
         if (checked) {
             setCheckedPosts(
                 loadedPosts.map((el) => {
@@ -103,6 +96,7 @@ function Board() {
         }
     };
 
+    //삭제 요청
     const handleDelete = () => {
         console.log('삭제요청');
         //??
@@ -188,6 +182,8 @@ function Board() {
                     <LoadingIndicator />
                 ) : (
                     <PostList
+                        totalPosts={totalPosts}
+                        currentPage={currentPage}
                         list={loadedPosts}
                         handleCheckChange={handleCheckChange}
                         checkedPosts={checkedPosts}

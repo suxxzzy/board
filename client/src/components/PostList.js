@@ -2,7 +2,13 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Post from './Post';
 
-function PostList({ list = [], handleCheckChange, checkedPosts }) {
+function PostList({
+    totalPosts,
+    currentPage,
+    list = [],
+    handleCheckChange,
+    checkedPosts,
+}) {
     const navigate = useNavigate();
     const [postID, setPostID] = useState(0);
     const [isNavigate, setIsNavigate] = useState(false);
@@ -29,16 +35,17 @@ function PostList({ list = [], handleCheckChange, checkedPosts }) {
         list.map((post, idx) => {
             return (
                 <Post
+                    key={post.BID}
                     handleCheckChange={handleCheckChange}
                     checkedPosts={checkedPosts}
                     onClick={() => handlePostDetail(post.BID)}
-                    key={post.BID}
-                    bid={Number(post.BID)}
-                    uid={Number(post.UID)}
-                    title={post.TITLE}
-                    author={post.UID_user.USERID}
-                    createdAt={post.CRTIME}
-                    viewCount={post.VIEWCOUNT}
+                    No={totalPosts - 10 * (currentPage - 1) - idx}
+                    BID={post.BID}
+                    UID={Number(post.UID)}
+                    TITLE={post.TITLE}
+                    USERID={post.UID_user.USERID}
+                    CRTIME={post.CRTIME}
+                    VIEWCOUNT={post.VIEWCOUNT}
                 />
             );
         })

@@ -16,12 +16,13 @@ function Post({
     handleCheckChange,
     checkedPosts,
     onClick,
-    bid,
-    uid,
-    title,
-    author,
-    createdAt,
-    viewCount,
+    No,
+    BID,
+    UID,
+    TITLE,
+    USERID,
+    CRTIME,
+    VIEWCOUNT,
 }) {
     return (
         <Row>
@@ -29,18 +30,18 @@ function Post({
                 <input
                     type="checkbox"
                     onChange={(e) => {
-                        handleCheckChange(e.target.checked, bid, uid);
+                        handleCheckChange(e.target.checked, BID, UID);
                     }}
                     checked={checkedPosts
-                        .map((el) => el.BID)
-                        .includes(Number(bid))}
+                        .map((post) => post.BID)
+                        .includes(Number(BID))}
                 ></input>
             </Col>
-            <Col>{bid}</Col>
-            <Col onClick={onClick}>{title}</Col>
-            <Col>{author}</Col>
-            <Col>{timeConverter_Board(createdAt)}</Col>
-            <Col>{viewCount}</Col>
+            <Col>{No}</Col>
+            <Col onClick={onClick}>{TITLE}</Col>
+            <Col>{USERID}</Col>
+            <Col>{timeConverter_Board(CRTIME)}</Col>
+            <Col>{VIEWCOUNT}</Col>
         </Row>
     );
 }
