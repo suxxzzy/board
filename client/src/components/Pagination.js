@@ -44,7 +44,7 @@ const PageSpan = styled.span`
     }
 `;
 
-const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
+const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
     //페이지 시작정보
     const [start, setStart] = useState(currentPage - ((currentPage % 4) - 1));
 
@@ -52,7 +52,7 @@ const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
     const pageNumbers = [];
     for (
         let i = start;
-        i <= Math.min(start + 3, Math.ceil(totalArticles / 10));
+        i <= Math.min(start + 3, Math.ceil(totalPosts / 10));
         i++
     ) {
         pageNumbers.push(i);
@@ -83,7 +83,7 @@ const Pagination = ({ totalArticles, currentPage, setCurrentPage }) => {
             <nav>
                 <PageUl className="pagination">
                     <PageLi onClick={gotoPrev}>&lt;&lt;</PageLi>
-                    {totalArticles !== 0 ? (
+                    {totalPosts !== 0 ? (
                         pageNumbers.map((page) => (
                             <PageLi
                                 key={page}

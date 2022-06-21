@@ -33,7 +33,8 @@ function PostList({ list = [], handleCheckChange, checkedPosts }) {
                     checkedPosts={checkedPosts}
                     onClick={() => handlePostDetail(post.BID)}
                     key={post.BID}
-                    no={Number(post.BID)}
+                    bid={Number(post.BID)}
+                    uid={Number(post.UID)}
                     title={post.TITLE}
                     author={post.UID_user.USERID}
                     createdAt={post.CRTIME}

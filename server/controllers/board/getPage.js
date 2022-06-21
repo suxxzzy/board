@@ -2,13 +2,9 @@
 const { sequelize } = require('../../models/index');
 const initModels = require('../../models/init-models');
 const { user, board } = initModels(sequelize);
-const { Op } = require('sequelize');
-const { query } = require('express');
 
 module.exports = async (req, res) => {
     try {
-        console.log('getpage');
-        console.log('요청들어옴', req, query);
         const { page } = req.query;
         if (!page) {
             return res.status(400).json({ message: '페이지 번호가 없습니다' });
@@ -16,9 +12,9 @@ module.exports = async (req, res) => {
         //**삭제된 게시물은 가지고 오지 말 것 */
         const { count, rows } = await board.findAndCountAll({
             where: { DISCD: 0 },
-            attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
+            attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT', 'UID'],
             include: [{ model: user, attributes: ['USERID'], as: 'UID_user' }],
-            offset: (parseInt(page) - 1) * 10,
+            offset: (Number(page) - 1) * 10,
             limit: 10,
             order: [['CRTIME', 'DESC']],
         });

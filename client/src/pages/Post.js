@@ -86,11 +86,44 @@ function Post() {
     };
 
     const handleModify = () => {
+        if (!window.localStorage.getItem('userID')) {
+            alert('로그인이 필요합니다');
+            return;
+        }
         navigate(`/board/${post.id}/modify`, {
             state: {
                 post,
             },
         });
+    };
+
+    const handleDelete = () => {
+        console.log('삭제요청');
+        if (!window.localStorage.getItem('userID')) {
+            alert('로그인이 필요합니다');
+            return;
+        }
+        //이후 삭제 요청.(페이지 번호 받아서 서버에 요청. 페이지 번호는 배열에 담는다)
+        axios
+            .patch(
+                `${process.env.REACT_APP_API_URL}/board`,
+                { deletes: [post.id] },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                //삭제 성공
+                alert('삭제되었습니다');
+                navigate('/board');
+            })
+            .catch((error) => {
+                //삭제 실패 메세지 띄우기
+                if (error.response) {
+                    const { data } = error.response;
+                    alert(data.message);
+                }
+            });
     };
 
     return (
@@ -105,9 +138,10 @@ function Post() {
                 <article>{post.content}</article>
                 <section>
                     <div>첨부파일</div>
-                    {post.attachmentFiles.map((file) => {
+                    {post.attachmentFiles.map((file, idx) => {
                         return (
                             <a
+                                key={idx}
                                 href={file.FILEPATH}
                             >{`${file.FILENAME}.${file.EXT}`}</a>
                         );
@@ -120,7 +154,7 @@ function Post() {
                 post.userpk ? (
                     <>
                         <button onClick={handleModify}>수정</button>
-                        <button>삭제</button>
+                        <button onClick={handleDelete}>삭제</button>
                     </>
                 ) : null}
             </section>

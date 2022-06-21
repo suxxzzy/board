@@ -16,7 +16,8 @@ function Post({
     handleCheckChange,
     checkedPosts,
     onClick,
-    no,
+    bid,
+    uid,
     title,
     author,
     createdAt,
@@ -28,12 +29,14 @@ function Post({
                 <input
                     type="checkbox"
                     onChange={(e) => {
-                        handleCheckChange(e.target.checked, no);
+                        handleCheckChange(e.target.checked, bid, uid);
                     }}
-                    checked={checkedPosts.includes(Number(no))}
+                    checked={checkedPosts
+                        .map((el) => el.BID)
+                        .includes(Number(bid))}
                 ></input>
             </Col>
-            <Col>{no}</Col>
+            <Col>{bid}</Col>
             <Col onClick={onClick}>{title}</Col>
             <Col>{author}</Col>
             <Col>{timeConverter_Board(createdAt)}</Col>

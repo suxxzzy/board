@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 const Container = styled.section`
@@ -38,11 +38,22 @@ function Modify() {
     const location = useLocation();
     const navigate = useNavigate();
     //수정 전 내용 받아와 저장
-    const [post, setPost] = useState(location.state.post);
+    const [title, setTitle] = useState(location.state.post.title);
+    const [content, setContent] = useState(location.state.post.content);
+
+    const handleChangeTitle = (e) => {
+        setTitle(e.target.value);
+    };
+
+    const handleChangeContent = (e) => {
+        setContent(e.target.value);
+    };
 
     //수정 요청
     const handleModify = () => {
-        axios.post();
+        axios.post(`${process.env.REACT_APP_API_URL}/board/${}`,{title,content},{withCredentials:true}).then(res=> {
+            
+        });
     };
 
     //수정 취소
@@ -51,21 +62,36 @@ function Modify() {
     };
 
     return (
-        <Container>
-            <h2>게시글 수정</h2>
-            <label htmlFor="title">제목</label>
-            <input id="title" type="text" value={post.title}></input>
-            <label htmlFor="content">내용</label>
-            <textarea id="content" value={post.content}></textarea>
-            <section>
-                <label>첨부파일</label>
-                <input type="file"></input>
-            </section>
-            <section id="button">
-                <button onClick={goBack}>수정취소</button>
-                <button onClick={handleModify}>수정완료</button>
-            </section>
-        </Container>
+        <>
+            {!window.localStorage.getItem('userID') ? (
+                <Navigate replace to="/" />
+            ) : (
+                <Container>
+                    <h2>게시글 수정</h2>
+                    <label htmlFor="title">제목</label>
+                    <input
+                        id="title"
+                        type="text"
+                        value={title}
+                        onChange={handleChangeTitle}
+                    ></input>
+                    <label htmlFor="content">내용</label>
+                    <textarea
+                        id="content"
+                        value={content}
+                        onChange={handleChangeContent}
+                    ></textarea>
+                    <section>
+                        <label>첨부파일</label>
+                        <input type="file"></input>
+                    </section>
+                    <section id="button">
+                        <button onClick={goBack}>수정취소</button>
+                        <button onClick={handleModify}>수정완료</button>
+                    </section>
+                </Container>
+            )}
+        </>
     );
 }
 

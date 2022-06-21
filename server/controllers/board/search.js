@@ -5,7 +5,6 @@ const { user, board } = initModels(sequelize);
 const { Op } = require('sequelize');
 
 module.exports = async (req, res) => {
-    console.log(req.query, '쿼리');
     try {
         const { option, keyword, page } = req.query;
 
@@ -23,14 +22,15 @@ module.exports = async (req, res) => {
             }
             const { count, rows } = await board.findAndCountAll({
                 where: { DISCD: 0, TITLE: { [Op.like]: `%${keyword}%` } },
-                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
+                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT', 'UID'],
                 include: [
                     { model: user, attributes: ['USERID'], as: 'UID_user' },
                 ],
-                offset: (parseInt(page) - 1) * 10,
+                offset: (Number(page) - 1) * 10,
                 limit: 10,
                 order: [['CRTIME', 'DESC']],
             });
+
             return res.status(200).json({
                 data: { board: rows, count },
                 message: `${page}페이지 게시물을 가져왔습니다`,
@@ -48,7 +48,7 @@ module.exports = async (req, res) => {
 
             const { count, rows } = await board.findAndCountAll({
                 where: { DISCD: 0 },
-                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT'],
+                attributes: ['BID', 'TITLE', 'CRTIME', 'VIEWCOUNT', 'UID'],
                 include: [
                     {
                         model: user,
@@ -57,7 +57,7 @@ module.exports = async (req, res) => {
                         where: { USERID: { [Op.like]: `%${keyword}%` } },
                     },
                 ],
-                offset: (parseInt(page) - 1) * 10,
+                offset: (Number(page) - 1) * 10,
                 limit: 10,
                 order: [['CRTIME', 'DESC']],
             });

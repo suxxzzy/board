@@ -1,7 +1,7 @@
 import axios from 'axios';
 import styled from 'styled-components';
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
 import Pagination from '../components/Pagination';
@@ -43,6 +43,7 @@ const ButtonList = styled.div`
 `;
 
 function Board() {
+    const navigate = useNavigate();
     //1회만 새로고침
     window.onload = function () {
         if (!window.location.hash) {
@@ -53,13 +54,13 @@ function Board() {
     window.onload();
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const [loadedArticles, setLoadedArticles] = useState([]);
-    const [totalArticles, setTotalArticles] = useState(0);
-    const [checkedPosts, setCheckedPosts] = useState(
-        loadedArticles.map((el) => el.BID),
-    );
+    const [loadedPosts, setLoadedPosts] = useState([]);
+    const [totalPosts, setTotalPosts] = useState(0);
+    const [checkedPosts, setCheckedPosts] = useState([]);
 
-    console.log(typeof loadedArticles.map((el) => el.BID)[0]);
+    // loadedPosts.map((el) => {
+    //     return { BID: el.BID, UID: el.UID };
+    // }),
 
     useEffect(() => {
         console.log('useEffect 호출');
@@ -72,28 +73,93 @@ function Board() {
             .get(`${process.env.REACT_APP_API_URL}/board?page=${currentPage}`)
             .then((res) => {
                 console.log(res.data.data, '받아온 게시물 정보');
-                setLoadedArticles(res.data.data.board);
-                setTotalArticles(res.data.data.count);
+                setLoadedPosts(res.data.data.board);
+                setTotalPosts(res.data.data.count);
                 setIsLoading(false);
             });
     };
 
     //전체 체크
     const handleAllCheck = (checked) => {
+        console.log('체크 요청', checked);
         if (checked) {
-            setCheckedPosts(loadedArticles.map((el) => el.BID));
+            setCheckedPosts(
+                loadedPosts.map((el) => {
+                    return { BID: el.BID, UID: el.UID };
+                }),
+            );
         } else {
             setCheckedPosts([]);
         }
     };
 
     //개별 체크
-    const handleCheckChange = (checked, id) => {
+    const handleCheckChange = (checked, BID, UID) => {
+        console.log(checked, BID, UID);
         if (checked) {
-            setCheckedPosts([...checkedPosts, id]);
+            setCheckedPosts([...checkedPosts, { BID, UID }]);
         } else {
-            setCheckedPosts(checkedPosts.filter((el) => el.BID !== id));
+            setCheckedPosts(checkedPosts.filter((el) => el.BID !== BID));
         }
+    };
+
+    const handleDelete = () => {
+        console.log('삭제요청');
+        //??
+        // if (!window.localStorage.getItem('userID')) {
+        //     alert('로그인이 필요합니다');
+        //     return;
+        // }
+
+        //아무것도 체크가 안되어있으면 삭제할 게시물을 선택해주세요 띄우기
+        if (checkedPosts.length === 0) {
+            alert('삭제할 게시물을 선택하세요');
+            return;
+        }
+
+        //만일 다른 사용자의 id가 포함되어 있다면, 한꺼번에 삭제할 수 없음
+        if (
+            checkedPosts
+                .map((post) => post.UID)
+                .filter(
+                    (el) =>
+                        el !== Number(window.localStorage.getItem('userID')),
+                ).length
+        ) {
+            alert(
+                `다른 사람의 게시물이 포함되어 있습니다. 확인 후 다시 삭제해주세요`,
+            );
+            //체크된 다른 사람의 게시물 체크 취소하기: 체크된 것 중 내가 쓴 것만 체크되게 설정.
+            setCheckedPosts(
+                checkedPosts.filter(
+                    (el) =>
+                        el.UID ===
+                        Number(window.localStorage.getItem('userID')),
+                ),
+            );
+            return;
+        }
+        //이후 삭제 요청.(페이지 번호 받아서 서버에 요청. 페이지 번호는 배열에 담는다)
+        axios
+            .patch(
+                `${process.env.REACT_APP_API_URL}/board`,
+                { deletes: checkedPosts },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                //삭제 성공
+                alert('삭제되었습니다');
+                navigate('/board');
+            })
+            .catch((error) => {
+                //삭제 실패 메세지 띄우기
+                if (error.response) {
+                    const { data } = error.response;
+                    alert(data.message);
+                }
+            });
     };
 
     return (
@@ -104,7 +170,11 @@ function Board() {
                     <Col>
                         <input
                             type="checkbox"
-                            checked={checkedPosts.length === 10 ? true : false}
+                            checked={
+                                checkedPosts.length === loadedPosts.length
+                                    ? true
+                                    : false
+                            }
                             onChange={(e) => handleAllCheck(e.target.checked)}
                         ></input>
                     </Col>
@@ -118,7 +188,7 @@ function Board() {
                     <LoadingIndicator />
                 ) : (
                     <PostList
-                        list={loadedArticles}
+                        list={loadedPosts}
                         handleCheckChange={handleCheckChange}
                         checkedPosts={checkedPosts}
                     />
@@ -127,21 +197,21 @@ function Board() {
             {/*로그인 한 상태에서만 보이도록*/}
             {window.localStorage.getItem('userID') ? (
                 <ButtonList>
-                    <button>삭제</button>
+                    <button onClick={handleDelete}>삭제</button>
                     <Link to="/write">
                         <button>등록</button>
                     </Link>
                 </ButtonList>
             ) : null}
             <Pagination
-                totalArticles={totalArticles}
+                totalPosts={totalPosts}
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
             />
             <Searchbar
                 currentPage={currentPage}
-                setLoadedArticles={setLoadedArticles}
-                setTotalArticles={setTotalArticles}
+                setLoadedPosts={setLoadedPosts}
+                setTotalPosts={setTotalPosts}
             />
         </Container>
     );

@@ -55,7 +55,6 @@ function Login() {
                 .then((res) => {
                     window.localStorage.setItem('userID', res.data.data.userid);
                     alert('로그인 되었습니다');
-                    //게시판 페이지 이동
                     navigate('/board');
                 })
                 .catch((error) => {

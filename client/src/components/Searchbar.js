@@ -6,7 +6,7 @@ const Container = styled.section`
     display: flex;
 `;
 
-function Searchbar({ currentPage, setLoadedArticles, setTotalArticles }) {
+function Searchbar({ currentPage, setLoadedPosts, setTotalPosts }) {
     const [option, setOption] = useState('제목');
 
     const [keyword, setKeyword] = useState('');
@@ -50,13 +50,13 @@ function Searchbar({ currentPage, setLoadedArticles, setTotalArticles }) {
             .then((res) => {
                 //검색 결과를 잘 받아왔으면 전체 게시물 개수와 특정 페이지에 대한 게시물을 받아온다
                 console.log(res.data.data, '요청한 검색결과');
-                setLoadedArticles(res.data.data.board);
-                setTotalArticles(res.data.data.count);
+                setLoadedPosts(res.data.data.board);
+                setTotalPosts(res.data.data.count);
                 setKeyword('');
             })
             .catch(() => {
-                setLoadedArticles([]);
-                setTotalArticles(0);
+                setLoadedPosts([]);
+                setTotalPosts(0);
             });
     };
 
