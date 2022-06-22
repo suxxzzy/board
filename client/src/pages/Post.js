@@ -51,7 +51,7 @@ function Post() {
         userid: '',
         crtime: '',
         content: '',
-        attachmentFiles: [],
+        attachmentfiles: [],
     });
 
     useEffect(() => {
@@ -76,7 +76,7 @@ function Post() {
                     userid: res.data.data.post.UID_user.USERID,
                     crtime: timeConverter_Post(res.data.data.post.CRTIME),
                     content: res.data.data.post.CONTENT,
-                    attachmentFiles: res.data.data.post.attachmentfiles,
+                    attachmentfiles: res.data.data.post.attachmentfiles,
                 });
             });
     };
@@ -136,7 +136,7 @@ function Post() {
                 <article>{post.content}</article>
                 <section>
                     <div>첨부파일</div>
-                    {post.attachmentFiles.map((file, idx) => {
+                    {post.attachmentfiles.map((file, idx) => {
                         return (
                             <a
                                 key={idx}

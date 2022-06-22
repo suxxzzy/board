@@ -36,10 +36,15 @@ const Container = styled.section`
 
 function Modify() {
     const location = useLocation();
+    console.log(location.state.post, '수정 전 내용');
     const navigate = useNavigate();
     //수정 전 내용 받아와 저장
     const [title, setTitle] = useState(location.state.post.title);
     const [content, setContent] = useState(location.state.post.content);
+    const [preview, setPreview] = useState('');
+    const [attachmentfiles, setAttachmentFiles] = useState(
+        location.state.post.attachmentfiles,
+    );
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -49,12 +54,83 @@ function Modify() {
         setContent(e.target.value);
     };
 
-    //수정 요청
+    const handleUploadFile = (e) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(e.target.files[0]);
+
+        //파일명 미리보기 띄우기
+        reader.onload = () => {
+            setPreview(e.target.files[0].name);
+        };
+
+        let formData = new FormData();
+        formData.append('Content-Type', e.target.files[0].type);
+        formData.append('file', e.target.files[0]);
+
+        console.log('파일 형식', e.target.files[0].type);
+
+        //업로드를 위한 presignedurl 요청
+        axios
+            .get(
+                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl/?filename=${e.target.files[0].name}`,
+                { withCredentials: true },
+            )
+            .then((res) => {
+                //첨부파일 업로드
+                const presignedurl = res.data.data.signedUrl;
+
+                axios
+                    .put(presignedurl, formData, {
+                        headers: {
+                            'Content-Type': e.target.files[0].type,
+                        },
+                    })
+                    .then((res) => {
+                        //버킷의 키 알아내기
+                        const key = `${
+                            res.config.url.split('/')[3].split('-')[0]
+                        }-${e.target.files[0].name}`;
+
+                        //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
+                        setAttachmentFiles([
+                            ...attachmentfiles,
+                            {
+                                FILENAME: e.target.files[0].name.split('.')[0],
+                                EXT: e.target.files[0].name.split('.')[1],
+                                FILEPATH: `${process.env.REACT_APP_S3_BUCKET_URL}/${key}`,
+                                SIZE: e.target.files[0].size,
+                                KEY: key,
+                            },
+                        ]);
+                    });
+            });
+    };
+
+    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
+    const handleDeleteFile = (key) => {
+        console.log('삭제요청');
+
+        axios
+            .delete(
+                `${process.env.REACT_APP_API_URL}/attachmentfile?filename=${key}`,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                alert('삭제완료');
+                setAttachmentFiles(
+                    attachmentfiles.filter((file) => file.KEY !== key),
+                );
+            });
+    };
+
+    //게시물 수정
     const handleModify = () => {
         axios
             .patch(
                 `${process.env.REACT_APP_API_URL}/board/${location.state.post.id}`,
-                { title, content },
+                { title, content, attachmentfiles },
                 { withCredentials: true },
             )
             .then((res) => {
@@ -92,9 +168,44 @@ function Modify() {
                         value={content}
                         onChange={handleChangeContent}
                     ></textarea>
-                    <section>
-                        <label>첨부파일</label>
-                        <input type="file"></input>
+                    <section id="attachmentfiles">
+                        <label htmlFor="file">첨부파일</label>
+                        <input
+                            type="text"
+                            id="file"
+                            value={preview}
+                            readOnly={true}
+                        ></input>
+                        <input
+                            type="file"
+                            id="fileupload"
+                            style={{ display: 'none' }}
+                            onChange={handleUploadFile}
+                        ></input>
+                        <label htmlFor="fileupload" id="find">
+                            찾아보기
+                        </label>
+                        {/*첨부한 파일 목록 미리 띄우기*/}
+                        <ul>
+                            {attachmentfiles.map((attachmentfile, idx) => {
+                                return (
+                                    <li key={idx}>
+                                        <a
+                                            href={attachmentfile.FILEPATH}
+                                        >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteFile(
+                                                    attachmentfile.KEY,
+                                                )
+                                            }
+                                        >
+                                            삭제
+                                        </button>
+                                    </li>
+                                );
+                            })}
+                        </ul>
                     </section>
                     <section id="button">
                         <button onClick={goBack}>수정취소</button>

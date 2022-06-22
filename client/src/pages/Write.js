@@ -42,13 +42,11 @@ const Container = styled.section`
     }
 `;
 
-//localstorage가 있을 경우에만 페이지 접근 가능케끔 한다
 function Write() {
     const navigate = useNavigate();
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState('');
-    const [singleFile, setSingleFile] = useState(null);
     const [attachmentfiles, setAttachmentFiles] = useState([]);
 
     const handleChangeTitle = (e) => {
@@ -66,50 +64,51 @@ function Write() {
     //파일 첨부시 업로드 할 수 있는 url서버에 요청
     //=> 성공시 s3 url에 즉시 업로드
     const handleUploadFile = (e) => {
-        console.log('파일 업로드 실행됨');
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
-        console.log('e.target.files[0] : ', e.target.files[0]);
+
+        //파일명 미리보기 띄우기
         reader.onload = () => {
-            console.log('reader', reader);
             setPreview(e.target.files[0].name);
         };
-
-        //서버로 보낼 파일 준비
-        setSingleFile(e.target.files[0]);
 
         let formData = new FormData();
         formData.append('Content-Type', e.target.files[0].type);
         formData.append('file', e.target.files[0]);
 
-        //서버에 presignedurl 요청
+        console.log('파일 형식', e.target.files[0].type);
+
+        //업로드를 위한 presignedurl 요청
         axios
             .get(
-                `${process.env.REACT_APP_API_URL}/board/presignedurl?filename=${
-                    e.target.files[0].name.split('.')[0]
-                }&ext=${e.target.files[0].name.split('.')[1]}`,
+                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl/?filename=${e.target.files[0].name}`,
+                { withCredentials: true },
             )
             .then((res) => {
-                //파일 업로드할 presignedurl 받아왔다
+                //첨부파일 업로드
                 const presignedurl = res.data.data.signedUrl;
 
                 axios
                     .put(presignedurl, formData, {
-                        headers: { 'Content-Type': 'multipart/form-data' },
+                        headers: {
+                            'Content-Type': e.target.files[0].type,
+                        },
                     })
                     .then((res) => {
+                        //버킷의 키 알아내기
+                        const key = `${
+                            res.config.url.split('/')[3].split('-')[0]
+                        }-${e.target.files[0].name}`;
+
                         //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                        for (let values of res.config.data.values()) {
-                            console.log(values, '첨부한 파일 키');
-                        }
                         setAttachmentFiles([
                             ...attachmentfiles,
                             {
                                 FILENAME: e.target.files[0].name.split('.')[0],
                                 EXT: e.target.files[0].name.split('.')[1],
-                                FILEPATH:
-                                    'https://board-file-storage.s3.ap-northeast-2.amazonaws.com/1596612604hellotxt', //*** */
+                                FILEPATH: `${process.env.REACT_APP_S3_BUCKET_URL}/${key}`,
                                 SIZE: e.target.files[0].size,
+                                KEY: key,
                             },
                         ]);
                     });
@@ -117,17 +116,29 @@ function Write() {
     };
 
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
-    const handleDeleteFile = () => {
+    const handleDeleteFile = (key) => {
         console.log('삭제요청');
-        //삭제 요청 시 attachmentfiles 내의 목록들도 삭제되어야 한다.
-        //그리고 파일 배열의 요소들도 재조정되어야 한다.
+
+        axios
+            .delete(
+                `${process.env.REACT_APP_API_URL}/attachmentfile?filename=${key}`,
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                alert('삭제완료');
+                setAttachmentFiles(
+                    attachmentfiles.filter((file) => file.KEY !== key),
+                );
+            });
     };
 
-    //제목, 내용, 작성 시각, 첨부파일(여러개 일 수 있음)
+    //게시물 등록
     const handlePost = () => {
         //첨부파일 없을 수도 있음
         //단 제목과 내용은 입력 필수
-        if (!title || !content) {
+        if (!title || !content || attachmentfiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
         }
 
@@ -143,8 +154,7 @@ function Write() {
                 { withCredentials: true },
             ) //
             .then((res) => {
-                //게시글 등록 성공
-                //새로 생성된 게시글 페이지로 이동한다.
+                //새로 생성된 게시글 페이지로 이동
                 alert('등록되었습니다');
                 navigate('/board');
             });
@@ -194,12 +204,18 @@ function Write() {
                             {attachmentfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
-                                        <a href={attachmentfile.FILEPATH}>
-                                            {`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
-                                        </a>
-                                        <span onClick={handleDeleteFile}>
+                                        <a
+                                            href={attachmentfile.FILEPATH}
+                                        >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                        <button
+                                            onClick={() =>
+                                                handleDeleteFile(
+                                                    attachmentfile.KEY,
+                                                )
+                                            }
+                                        >
                                             삭제
-                                        </span>
+                                        </button>
                                     </li>
                                 );
                             })}
