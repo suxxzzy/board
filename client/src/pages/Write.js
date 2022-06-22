@@ -67,7 +67,6 @@ function Write() {
     //=> 성공시 s3 url에 즉시 업로드
     const handleUploadFile = (e) => {
         console.log('파일 업로드 실행됨');
-        //인풋창에 파일명.확장자 띄우기
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
         console.log('e.target.files[0] : ', e.target.files[0]);
@@ -80,35 +79,49 @@ function Write() {
         setSingleFile(e.target.files[0]);
 
         let formData = new FormData();
-        formData.append('file', singleFile);
+        formData.append('Content-Type', e.target.files[0].type);
+        formData.append('file', e.target.files[0]);
 
         //서버에 presignedurl 요청
         axios
             .get(
-                `${process.env.REACT_APP_API_URL}/board/presignedurl?filename=${e.target.files[0].name}`,
+                `${process.env.REACT_APP_API_URL}/board/presignedurl?filename=${
+                    e.target.files[0].name.split('.')[0]
+                }&ext=${e.target.files[0].name.split('.')[1]}`,
             )
             .then((res) => {
-                console.log(res.data.data.signedUrl);
+                //파일 업로드할 presignedurl 받아왔다
                 const presignedurl = res.data.data.signedUrl;
-                //presignedurl로 put 요청을 보낸다. 즉, 업로드를 한다.
-                axios.put(presignedurl, { body: singleFile }).then((res) => {
-                    //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                    console.log(res, '응답..');
-                    setAttachmentFiles([
-                        ...attachmentfiles,
-                        {
-                            FILENAME: e.target.files[0].name.split('.')[0],
-                            EXT: e.target.files[0].name.split('.')[1],
-                            FILEPATH: '', //*** */
-                            SIZE: e.target.files[0].size,
-                        },
-                    ]);
-                });
+
+                axios
+                    .put(presignedurl, formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' },
+                    })
+                    .then((res) => {
+                        //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
+                        for (let values of res.config.data.values()) {
+                            console.log(values, '첨부한 파일 키');
+                        }
+                        setAttachmentFiles([
+                            ...attachmentfiles,
+                            {
+                                FILENAME: e.target.files[0].name.split('.')[0],
+                                EXT: e.target.files[0].name.split('.')[1],
+                                FILEPATH:
+                                    'https://board-file-storage.s3.ap-northeast-2.amazonaws.com/1596612604hellotxt', //*** */
+                                SIZE: e.target.files[0].size,
+                            },
+                        ]);
+                    });
             });
     };
 
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
-    const handleDeleteFile = () => {};
+    const handleDeleteFile = () => {
+        console.log('삭제요청');
+        //삭제 요청 시 attachmentfiles 내의 목록들도 삭제되어야 한다.
+        //그리고 파일 배열의 요소들도 재조정되어야 한다.
+    };
 
     //제목, 내용, 작성 시각, 첨부파일(여러개 일 수 있음)
     const handlePost = () => {
@@ -125,20 +138,18 @@ function Write() {
                 {
                     title,
                     content,
-                    attachmentfiles:
-                        attachmentfiles.length === 0
-                            ? undefined
-                            : attachmentfiles,
+                    attachmentfiles, //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
                 },
                 { withCredentials: true },
             ) //
             .then((res) => {
                 //게시글 등록 성공
                 //새로 생성된 게시글 페이지로 이동한다.
+                alert('등록되었습니다');
                 navigate('/board');
             });
     };
-    //https://heewon26.tistory.com/377
+
     return (
         <>
             {!window.localStorage.getItem('userID') ? (
@@ -167,7 +178,7 @@ function Write() {
                             type="text"
                             id="file"
                             value={preview}
-                            readOnly="true"
+                            readOnly={true}
                         ></input>
                         <input
                             type="file"
@@ -182,12 +193,14 @@ function Write() {
                         <ul>
                             {attachmentfiles.map((attachmentfile, idx) => {
                                 return (
-                                    <a key={idx} href={attachmentfile.FILEPATH}>
-                                        <li>{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</li>
+                                    <li key={idx}>
+                                        <a href={attachmentfile.FILEPATH}>
+                                            {`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
+                                        </a>
                                         <span onClick={handleDeleteFile}>
                                             삭제
                                         </span>
-                                    </a>
+                                    </li>
                                 );
                             })}
                         </ul>
