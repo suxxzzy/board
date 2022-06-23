@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import { timeConverter_Post } from '../modules/datetimeconverter';
 
 const Container = styled.section`
-    border: 1px solid red;
     display: flex;
     flex-direction: column;
     height: 90%;
@@ -44,39 +43,42 @@ const Container = styled.section`
 function Post() {
     const location = useLocation();
     const navigate = useNavigate();
-    const [post, setPost] = useState({
-        id: 0,
-        title: '',
-        userpk: '',
-        userid: '',
-        crtime: '',
-        content: '',
-        attachmentfiles: [],
+    const [board, setBoard] = useState({
+        NO: '',
+        BID: 0,
+        TITLE: '',
+        UID: '',
+        USERID: '',
+        CRTIME: '',
+        CONTENT: '',
+        ATTACHMENTFILES: [],
     });
 
     useEffect(() => {
         getPost();
     }, []);
 
+    console.log(location.state, '현재 값');
     const getPost = () => {
         axios
             .get(
-                `${process.env.REACT_APP_API_URL}/board/${location.state.postID}`,
+                `${process.env.REACT_APP_API_URL}/board/${location.state.BID}`,
                 {
                     withCredentials: true,
                 },
             )
             .then((res) => {
                 console.log(res.data.data, '게시물 상세 정보');
-                setPost({
-                    ...post,
-                    id: res.data.data.post.BID,
-                    title: res.data.data.post.TITLE,
-                    userpk: res.data.data.post.UID,
-                    userid: res.data.data.post.UID_user.USERID,
-                    crtime: timeConverter_Post(res.data.data.post.CRTIME),
-                    content: res.data.data.post.CONTENT,
-                    attachmentfiles: res.data.data.post.attachmentfiles,
+                setBoard({
+                    ...board,
+                    No: location.state.No,
+                    BID: res.data.data.Board.BID,
+                    TITLE: res.data.data.Board.TITLE,
+                    UID: res.data.data.Board.UID,
+                    USERID: res.data.data.Board.UID_user.USERID,
+                    CRTIME: timeConverter_Post(res.data.data.Board.CRTIME),
+                    CONTENT: res.data.data.Board.CONTENT,
+                    ATTACHMENTFILES: res.data.data.Board.attachmentfiles,
                 });
             });
     };
@@ -90,24 +92,24 @@ function Post() {
             alert('로그인이 필요합니다');
             return;
         }
-        navigate(`/board/${post.id}/modify`, {
+        navigate(`/board/${location.state.No}/modify`, {
             state: {
-                post,
+                board,
             },
         });
     };
 
     const handleDelete = () => {
         console.log('삭제요청');
-        if (!window.localStorage.getItem('userID')) {
-            alert('로그인이 필요합니다');
-            return;
-        }
+        // if (!window.localStorage.getItem('userID')) {
+        //     alert('로그인이 필요합니다');
+        //     return;
+        // }
         //이후 삭제 요청.(페이지 번호 받아서 서버에 요청. 페이지 번호는 배열에 담는다)
         axios
             .patch(
                 `${process.env.REACT_APP_API_URL}/board`,
-                { deletes: [{ UID: post.userpk, BID: post.id }] },
+                { deletes: [{ UID: board.UID, BID: board.BID }] },
                 {
                     withCredentials: true,
                 },
@@ -128,15 +130,15 @@ function Post() {
         <Container>
             <h2>게시판</h2>
             <section id="title">
-                <h3>{post.title}</h3>
-                <div>{post.userid}</div>
-                <div>{post.crtime}</div>
+                <h3>{board.TITLE}</h3>
+                <div>{board.USERID}</div>
+                <div>{board.CRTIME}</div>
             </section>
             <section id="content">
-                <article>{post.content}</article>
+                <article>{board.CONTENT}</article>
                 <section>
                     <div>첨부파일</div>
-                    {post.attachmentfiles.map((file, idx) => {
+                    {board.ATTACHMENTFILES.map((file, idx) => {
                         return (
                             <a
                                 key={idx}
@@ -148,8 +150,7 @@ function Post() {
             </section>
             <section>
                 <button onClick={goToBoard}>목록</button>
-                {Number(window.localStorage.getItem('userID')) ===
-                post.userpk ? (
+                {Number(window.localStorage.getItem('userID')) === board.UID ? (
                     <>
                         <button onClick={handleModify}>수정</button>
                         <button onClick={handleDelete}>삭제</button>

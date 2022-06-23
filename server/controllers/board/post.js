@@ -30,11 +30,18 @@ module.exports = async (req, res) => {
         });
 
         console.log(newPost.BID, '게시물 BID');
+        //게시판에 표시할 No 구하기
+        const No = await board.count({
+            where: {
+                DISCD: 0,
+            },
+        });
 
         //첨부파일이 없는 경우
         if (attachmentfiles.length === 0) {
             return res.status(201).json({
                 data: {
+                    No,
                     BID: newPost.BID,
                     USERID: author.UID,
                     TITLE: newPost.TITLE,

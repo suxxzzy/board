@@ -13,7 +13,6 @@ module.exports = async (req, res) => {
                 .json({ message: '삭제할 게시물이 없습니다' });
         }
 
-        //console.log(typeof deletes[0], '삭제할 게시물 데이터타입?');
         await board.update(
             { DISCD: 1 },
             {

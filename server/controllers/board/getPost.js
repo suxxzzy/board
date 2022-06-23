@@ -7,28 +7,28 @@ module.exports = async (req, res) => {
     try {
         console.log('getpost');
         //게시물의 아이디를 받아와야 한다.
-        const { id: postID } = req.params;
-        if (!postID) {
+        const { id: BID } = req.params;
+        if (!BID) {
             return res
                 .status(400)
                 .json({ message: '게시물 불러오기에 실패했습니다' });
         }
 
         //아이디가 존재하는 경우
-        const post = await board.findByPk(postID, {
+        const Board = await board.findByPk(BID, {
             attributes: ['BID', 'TITLE', 'CONTENT', 'CRTIME', 'DISCD', 'UID'],
             include: [
                 { model: user, attributes: ['USERID'], as: 'UID_user' },
                 {
                     model: attachmentfile,
-                    attributes: ['FILENAME', 'FILEPATH', 'EXT'],
+                    attributes: ['FILENAME', 'FILEPATH', 'EXT', 'SIZE'],
                     as: 'attachmentfiles',
                 },
             ],
         });
 
         //만약에 삭제된 게시물인 경우, 삭제된 게시물입니다. 라고 응답
-        if (post.DISCD !== 0) {
+        if (Board.DISCD !== 0) {
             return res.status(404).json({ message: '삭제된 게시물입니다' });
         }
 
@@ -39,12 +39,12 @@ module.exports = async (req, res) => {
         //조회수 1 올려야 함
         board.increment('VIEWCOUNT', {
             by: 1,
-            where: { BID: postID },
+            where: { BID },
         });
 
         return res.status(200).json({
-            data: { post },
-            message: `${postID}번 게시물을 가져왔습니다`,
+            data: { Board },
+            message: `${BID}번 게시물을 가져왔습니다`,
         });
     } catch (e) {
         console.error(e);

@@ -8,7 +8,6 @@ import Pagination from '../components/Pagination';
 import Searchbar from '../components/Searchbar';
 
 const Container = styled.div`
-    border: 1px solid black;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;

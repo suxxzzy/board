@@ -10,19 +10,22 @@ function PostList({
     checkedPosts,
 }) {
     const navigate = useNavigate();
-    const [postID, setPostID] = useState(0);
+    const [No, setNo] = useState(0);
+    const [BID, setBID] = useState(0);
     const [isNavigate, setIsNavigate] = useState(false);
 
-    const handlePostDetail = (id) => {
-        setPostID(id);
+    const handlePostDetail = (No, BID) => {
+        setNo(No);
+        setBID(BID);
         setIsNavigate(true);
     };
 
     useEffect(() => {
         if (isNavigate) {
-            navigate(`/board/${postID}`, {
+            navigate(`/board/${No}`, {
                 state: {
-                    postID: postID,
+                    No,
+                    BID,
                 },
             });
             setIsNavigate(false);
@@ -38,7 +41,12 @@ function PostList({
                     key={post.BID}
                     handleCheckChange={handleCheckChange}
                     checkedPosts={checkedPosts}
-                    onClick={() => handlePostDetail(post.BID)}
+                    onClick={() =>
+                        handlePostDetail(
+                            totalPosts - 10 * (currentPage - 1) - idx,
+                            post.BID,
+                        )
+                    }
                     No={totalPosts - 10 * (currentPage - 1) - idx}
                     BID={post.BID}
                     UID={Number(post.UID)}

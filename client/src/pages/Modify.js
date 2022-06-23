@@ -36,14 +36,14 @@ const Container = styled.section`
 
 function Modify() {
     const location = useLocation();
-    console.log(location.state.post, '수정 전 내용');
+    console.log(location.state, '수정 전 내용');
     const navigate = useNavigate();
     //수정 전 내용 받아와 저장
-    const [title, setTitle] = useState(location.state.post.title);
-    const [content, setContent] = useState(location.state.post.content);
+    const [title, setTitle] = useState(location.state.board.TITLE);
+    const [content, setContent] = useState(location.state.board.CONTENT);
     const [preview, setPreview] = useState('');
     const [attachmentfiles, setAttachmentFiles] = useState(
-        location.state.post.attachmentfiles,
+        location.state.board.ATTACHMENTFILES,
     );
 
     const handleChangeTitle = (e) => {
@@ -109,7 +109,6 @@ function Modify() {
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
     const handleDeleteFile = (key) => {
         console.log('삭제요청');
-
         axios
             .delete(
                 `${process.env.REACT_APP_API_URL}/attachmentfile?filename=${key}`,
@@ -119,25 +118,30 @@ function Modify() {
             )
             .then((res) => {
                 alert('삭제완료');
+
                 setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.KEY !== key),
+                    attachmentfiles.filter(
+                        (file) => file.FILEPATH.split('/')[3] !== key,
+                    ),
                 );
             });
     };
 
     //게시물 수정
     const handleModify = () => {
+        console.log(location.state, '상태값');
         axios
             .patch(
-                `${process.env.REACT_APP_API_URL}/board/${location.state.post.id}`,
+                `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
                 { title, content, attachmentfiles },
                 { withCredentials: true },
             )
             .then((res) => {
                 alert('수정되었습니다');
-                navigate(`/board/${location.state.post.id}`, {
+                navigate(`/board/${location.state.No}`, {
                     state: {
-                        postID: location.state.post.id,
+                        No: location.state.board.No,
+                        BID: location.state.board.BID,
                     },
                 });
             });
@@ -196,7 +200,9 @@ function Modify() {
                                         <button
                                             onClick={() =>
                                                 handleDeleteFile(
-                                                    attachmentfile.KEY,
+                                                    attachmentfile.FILEPATH.split(
+                                                        '/',
+                                                    )[3],
                                                 )
                                             }
                                         >

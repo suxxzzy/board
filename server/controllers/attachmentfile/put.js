@@ -8,7 +8,6 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = async (req, res) => {
-    console.log('url 발급 요청');
     try {
         //파일 이름과 확장자
         const { filename } = req.query;

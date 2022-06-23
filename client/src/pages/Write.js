@@ -72,16 +72,10 @@ function Write() {
             setPreview(e.target.files[0].name);
         };
 
-        let formData = new FormData();
-        formData.append('Content-Type', e.target.files[0].type);
-        formData.append('file', e.target.files[0]);
-
-        console.log('파일 형식', e.target.files[0].type);
-
         //업로드를 위한 presignedurl 요청
         axios
             .get(
-                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl/?filename=${e.target.files[0].name}`,
+                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${e.target.files[0].name}`,
                 { withCredentials: true },
             )
             .then((res) => {
@@ -89,7 +83,7 @@ function Write() {
                 const presignedurl = res.data.data.signedUrl;
 
                 axios
-                    .put(presignedurl, formData, {
+                    .put(presignedurl, e.target.files[0], {
                         headers: {
                             'Content-Type': e.target.files[0].type,
                         },
@@ -154,9 +148,14 @@ function Write() {
                 { withCredentials: true },
             ) //
             .then((res) => {
-                //새로 생성된 게시글 페이지로 이동
+                //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
                 alert('등록되었습니다');
-                navigate('/board');
+                navigate(`/board/${res.data.data.No}`, {
+                    state: {
+                        No: res.data.data.No,
+                        BID: res.data.data.BID,
+                    },
+                });
             });
     };
 
