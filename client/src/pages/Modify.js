@@ -100,7 +100,7 @@ function Modify() {
                             {
                                 FILENAME: e.target.files[0].name.split('.')[0],
                                 EXT: e.target.files[0].name.split('.')[1],
-                                FILEPATH: `${process.env.REACT_APP_S3_BUCKET_URL}/${key}`,
+                                FILEPATH: key,
                                 SIZE: e.target.files[0].size,
                                 KEY: key,
                             },
@@ -196,13 +196,7 @@ function Modify() {
                                 return (
                                     <li key={idx}>
                                         <a
-                                            href={`${
-                                                process.env.REACT_APP_API_URL
-                                            }/attachmentfile/object?key=${
-                                                attachmentfile.FILEPATH.split(
-                                                    '/',
-                                                )[3]
-                                            }`}
+                                            href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
                                             download={attachmentfile.FILEPATH}
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button

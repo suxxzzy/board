@@ -102,6 +102,7 @@ function Write() {
                                 EXT: e.target.files[0].name.split('.')[1],
                                 FILEPATH: key,
                                 SIZE: e.target.files[0].size,
+                                KEY: key,
                             },
                         ]);
                     });
