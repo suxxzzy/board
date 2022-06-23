@@ -1,4 +1,5 @@
 module.exports = {
-    presignedurl: require('./put'),
+    upload: require('./put'),
+    download: require('./get'),
     delete: require('./delete'),
 };

@@ -62,7 +62,7 @@ function Write() {
     };
 
     //파일 첨부시 업로드 할 수 있는 url서버에 요청
-    //=> 성공시 s3 url에 즉시 업로드
+    //=> 성공시 s3 url에 즉시 업로드: 이때, 파일을 다운로드 받을 수 있는 링크를 받아와야 한다.!!
     const handleUploadFile = (e) => {
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
@@ -100,12 +100,24 @@ function Write() {
                             {
                                 FILENAME: e.target.files[0].name.split('.')[0],
                                 EXT: e.target.files[0].name.split('.')[1],
-                                FILEPATH: `${process.env.REACT_APP_S3_BUCKET_URL}/${key}`,
+                                FILEPATH: key,
                                 SIZE: e.target.files[0].size,
-                                KEY: key,
                             },
                         ]);
                     });
+            });
+    };
+    console.log('<Write>', attachmentfiles);
+
+    //주어진 파일 이름(s3에서의 키)를 바탕으로 다운로드 링크 발급(한시적 접근)+ 해당 링크로 get요청 보내 다운로드.
+    const handleDownloadFile = (key) => {
+        console.log('파일 다운로드 요청');
+        axios
+            .get(
+                `${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${key}`,
+            )
+            .then((res) => {
+                console.log('다운로드 링크 발급받았음', res);
             });
     };
 
@@ -123,7 +135,7 @@ function Write() {
             .then((res) => {
                 alert('삭제완료');
                 setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.KEY !== key),
+                    attachmentfiles.filter((file) => file.FILEPATH !== key),
                 );
             });
     };
@@ -150,6 +162,7 @@ function Write() {
             .then((res) => {
                 //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
                 alert('등록되었습니다');
+                console.log(res.data.data, '<Write>');
                 navigate(`/board/${res.data.data.No}`, {
                     state: {
                         No: res.data.data.No,
@@ -158,6 +171,8 @@ function Write() {
                 });
             });
     };
+
+    console.log(attachmentfiles, '<Write>에서의 첨부파일 상태');
 
     return (
         <>
@@ -204,12 +219,13 @@ function Write() {
                                 return (
                                     <li key={idx}>
                                         <a
-                                            href={attachmentfile.FILEPATH}
+                                            href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
+                                            download={attachmentfile.FILEPATH}
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button
                                             onClick={() =>
                                                 handleDeleteFile(
-                                                    attachmentfile.KEY,
+                                                    attachmentfile.FILEPATH,
                                                 )
                                             }
                                         >

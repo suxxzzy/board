@@ -37,11 +37,13 @@ module.exports = async (req, res) => {
             },
         });
 
+        console.log(No, '화면에 보여줄 게시물 번호');
+
         //첨부파일이 없는 경우
         if (attachmentfiles.length === 0) {
             return res.status(201).json({
                 data: {
-                    No,
+                    No: No,
                     BID: newPost.BID,
                     USERID: author.UID,
                     TITLE: newPost.TITLE,

@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+//import * as fs from 'fs/promises';
 
 const Container = styled.section`
     border: 1px solid red;
@@ -45,6 +46,8 @@ function Modify() {
     const [attachmentfiles, setAttachmentFiles] = useState(
         location.state.board.ATTACHMENTFILES,
     );
+
+    console.log(attachmentfiles, '<Modify>의 첨부파일 상태');
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -120,9 +123,7 @@ function Modify() {
                 alert('삭제완료');
 
                 setAttachmentFiles(
-                    attachmentfiles.filter(
-                        (file) => file.FILEPATH.split('/')[3] !== key,
-                    ),
+                    attachmentfiles.filter((file) => file.FILEPATH !== key),
                 );
             });
     };
@@ -138,7 +139,7 @@ function Modify() {
             )
             .then((res) => {
                 alert('수정되었습니다');
-                navigate(`/board/${location.state.No}`, {
+                navigate(`/board/${location.state.board.No}`, {
                     state: {
                         No: location.state.board.No,
                         BID: location.state.board.BID,
@@ -151,7 +152,7 @@ function Modify() {
     const goBack = () => {
         navigate(-1);
     };
-
+    console.log(attachmentfiles, '첨부파일 목록');
     return (
         <>
             {!window.localStorage.getItem('userID') ? (
@@ -195,14 +196,19 @@ function Modify() {
                                 return (
                                     <li key={idx}>
                                         <a
-                                            href={attachmentfile.FILEPATH}
+                                            href={`${
+                                                process.env.REACT_APP_API_URL
+                                            }/attachmentfile/object?key=${
+                                                attachmentfile.FILEPATH.split(
+                                                    '/',
+                                                )[3]
+                                            }`}
+                                            download={attachmentfile.FILEPATH}
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button
                                             onClick={() =>
                                                 handleDeleteFile(
-                                                    attachmentfile.FILEPATH.split(
-                                                        '/',
-                                                    )[3],
+                                                    attachmentfile.FILEPATH,
                                                 )
                                             }
                                         >

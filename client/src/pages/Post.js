@@ -58,7 +58,7 @@ function Post() {
         getPost();
     }, []);
 
-    console.log(location.state, '현재 값');
+    console.log(location.state, '<Post>현재 값');
     const getPost = () => {
         axios
             .get(
@@ -126,6 +126,8 @@ function Post() {
             });
     };
 
+    console.log(board.ATTACHMENTFILES, '<Post>에서의 첨부파일 상태');
+
     return (
         <Container>
             <h2>게시판</h2>
@@ -138,14 +140,18 @@ function Post() {
                 <article>{board.CONTENT}</article>
                 <section>
                     <div>첨부파일</div>
-                    {board.ATTACHMENTFILES.map((file, idx) => {
-                        return (
-                            <a
-                                key={idx}
-                                href={file.FILEPATH}
-                            >{`${file.FILENAME}.${file.EXT}`}</a>
-                        );
-                    })}
+                    <ul>
+                        {board.ATTACHMENTFILES.map((attachmentfile, idx) => {
+                            return (
+                                <li key={idx}>
+                                    <a
+                                        href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
+                                        download={attachmentfile.FILEPATH}
+                                    >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </section>
             </section>
             <section>
