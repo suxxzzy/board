@@ -97,41 +97,6 @@ function Write() {
 
         //업로드할 파일 목록 업데이트하기
         setAttachmentFiles([...attachmentfiles, e.target.files[0]]);
-
-        //업로드를 위한 presignedurl 요청
-        axios
-            .get(
-                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${e.target.files[0].name}`,
-                { withCredentials: true },
-            )
-            .then((res) => {
-                //첨부파일 업로드
-                const presignedurl = res.data.data.signedUrl;
-
-                axios
-                    .put(presignedurl, e.target.files[0], {
-                        headers: {
-                            'Content-Type': e.target.files[0].type,
-                        },
-                    })
-                    .then((res) => {
-                        //버킷의 키 알아내기
-                        const key = `${
-                            res.config.url.split('/')[3].split('-')[0]
-                        }-${e.target.files[0].name}`;
-
-                        //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                        setAttachmentFiles([
-                            ...attachmentfiles,
-                            {
-                                FILENAME: e.target.files[0].name.split('.')[0],
-                                EXT: e.target.files[0].name.split('.')[1],
-                                FILEPATH: key,
-                                SIZE: e.target.files[0].size,
-                            },
-                        ]);
-                    });
-            });
     };
 
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): db에는 올리지 않았으니, s3에서만 삭제하면 된다.
@@ -169,9 +134,10 @@ function Write() {
             //바로 axios 요청 보낸다.
             if (!title || !content || attachmentfiles === undefined) {
                 alert('제목과 내용 모두 입력해주세요');
+                return;
             }
             //서버에 axios 요청 보내기
-            axios
+            return axios
                 .post(
                     `${process.env.REACT_APP_API_URL}/board`,
                     {
@@ -194,11 +160,52 @@ function Write() {
                 });
         }
         //첨부파일이 빈 배열이 아닌 경우
-        //첨부파일 없을 수도 있음
-        //단 제목과 내용은 입력 필수
         if (!title || !content || attachmentfiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
         }
+        //s3에 파일을 업로드한다.
+        const filePromise = [];
+        for (let i = 0; i < attachmentfiles.length; i++) {
+            //업로드를 위한 presignedurl 요청
+            const fileP = axios
+                .get(
+                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${e.target.files[0].name}`,
+                    { withCredentials: true },
+                )
+                .then((res) => {
+                    //첨부파일 업로드
+                    const presignedurl = res.data.data.signedUrl;
+
+                    axios
+                        .put(presignedurl, e.target.files[0], {
+                            headers: {
+                                'Content-Type': e.target.files[0].type,
+                            },
+                        })
+                        .then((res) => {
+                            //버킷의 키 알아내기
+                            const key = `${
+                                res.config.url.split('/')[3].split('-')[0]
+                            }-${e.target.files[0].name}`;
+
+                            //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
+                            setAttachmentFiles([
+                                ...attachmentfiles,
+                                {
+                                    FILENAME:
+                                        e.target.files[0].name.split('.')[0],
+                                    EXT: e.target.files[0].name.split('.')[1],
+                                    FILEPATH: key,
+                                    SIZE: e.target.files[0].size,
+                                },
+                            ]);
+                        });
+                });
+        }
+        // Promise.all(filePromise).then(result => {
+        //     //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
+
+        // })
     };
 
     console.log(attachmentfiles, '<Write>에서의 첨부파일 상태');
