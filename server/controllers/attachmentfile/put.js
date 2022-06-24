@@ -1,7 +1,6 @@
 //클라이언트의 파일 업로드 요청에 의해
 //presignedurl을 발급하여 반환하는 컨트롤러.
 const { PutObjectCommand } = require('@aws-sdk/client-s3');
-
 const { s3Client } = require('../../config/s3client');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const dotenv = require('dotenv');

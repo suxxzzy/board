@@ -84,6 +84,8 @@ function Write() {
 
     //파일 첨부시 업로드 할 수 있는 url서버에 요청
     //=> 성공시 s3 url에 즉시 업로드: 이때, 파일을 다운로드 받을 수 있는 링크를 받아와야 한다.!!
+
+    //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
@@ -92,6 +94,9 @@ function Write() {
         reader.onload = () => {
             setPreview(e.target.files[0].name);
         };
+
+        //업로드할 파일 목록 업데이트하기
+        setAttachmentFiles([...attachmentfiles, e.target.files[0]]);
 
         //업로드를 위한 presignedurl 요청
         axios
@@ -130,23 +135,31 @@ function Write() {
     };
 
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): db에는 올리지 않았으니, s3에서만 삭제하면 된다.
-    const handleDeleteFile = (Key) => {
+    const handleDeleteFile = (idx) => {
         console.log('삭제요청');
 
-        axios
-            .post(
-                `${process.env.REACT_APP_API_URL}/attachmentfile`,
-                { deletes: [{ Key }] },
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((res) => {
-                alert('삭제완료');
-                setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.FILEPATH !== Key),
-                );
-            });
+        //어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
+        setAttachmentFiles(
+            attachmentfiles.filter(
+                (attachmentfile, fileidx) => fileidx !== idx,
+            ),
+        );
+
+        //굳이..
+        // axios
+        //     .post(
+        //         `${process.env.REACT_APP_API_URL}/attachmentfile`,
+        //         { deletes: [{ Key }] },
+        //         {
+        //             withCredentials: true,
+        //         },
+        //     )
+        //     .then((res) => {
+        //         alert('삭제완료');
+        //         setAttachmentFiles(
+        //             attachmentfiles.filter((file) => file.FILEPATH !== Key),
+        //         );
+        //     });
     };
 
     //게시물 등록
@@ -233,9 +246,7 @@ function Write() {
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button
                                             onClick={() =>
-                                                handleDeleteFile(
-                                                    attachmentfile.FILEPATH,
-                                                )
+                                                handleDeleteFile(idx)
                                             }
                                         >
                                             삭제
