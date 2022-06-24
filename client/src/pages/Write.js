@@ -132,13 +132,14 @@ function Write() {
 
     //게시물 등록
     const handlePost = () => {
+        if (!title || !content || attachmentFiles === undefined) {
+            alert('제목과 내용 모두 입력해주세요');
+            return;
+        }
         //첨부파일이 빈 배열인 경우
         if (attachmentFiles.length === 0) {
             //바로 axios 요청 보낸다.
-            if (!title || !content || attachmentFiles === undefined) {
-                alert('제목과 내용 모두 입력해주세요');
-                return;
-            }
+
             //서버에 axios 요청 보내기
             return axios
                 .post(
@@ -163,9 +164,6 @@ function Write() {
                 });
         }
         //첨부파일이 빈 배열이 아닌 경우
-        if (!title || !content || attachmentFiles === undefined) {
-            alert('제목과 내용 모두 입력해주세요');
-        }
         //s3에 파일을 업로드한다.
         const filePromise = [];
         for (let i = 0; i < attachmentFiles.length; i++) {
