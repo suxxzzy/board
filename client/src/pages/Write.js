@@ -47,7 +47,8 @@ function Write() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState('');
-    const [attachmentfiles, setAttachmentFiles] = useState([]);
+    const [tempAttachmentFiles, setTempAttachmentFiles] = useState([]); //s3에 올라갈 파일 그 자체
+    const [attachmentFiles, setAttachmentFiles] = useState([]); //실질적으로 db에 올릴 파일정보
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -62,24 +63,26 @@ function Write() {
         //등록했던 첨부파일이 존재한다면, s3상에서 삭제해야 한다.
         //여러개를 첨부했을 수 있으니 한번에 삭제
         //주어진 배열에서 파일의 키 이름만 추출
-        const deletes = attachmentfiles.map((attachmentfile) => {
-            return {
-                Key: attachmentfile.FILEPATH,
-            };
-        });
+        // const deletes = tempAttachmentFiles.map((attachmentfile) => {
+        //     return {
+        //         Key: attachmentfile.FILEPATH,
+        //     };
+        // });
 
-        axios
-            .post(
-                `${process.env.REACT_APP_API_URL}/attachmentfile`,
-                { deletes },
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((res) => {
-                alert('작성을 취소했습니다');
-                navigate(-1);
-            });
+        // axios
+        //     .post(
+        //         `${process.env.REACT_APP_API_URL}/attachmentfile`,
+        //         { deletes },
+        //         {
+        //             withCredentials: true,
+        //         },
+        //     )
+        //     .then((res) => {
+        //         alert('작성을 취소했습니다');
+        //         navigate(-1);
+        //     });
+
+        navigate(-1);
     };
 
     //파일 첨부시 업로드 할 수 있는 url서버에 요청
@@ -96,7 +99,7 @@ function Write() {
         };
 
         //업로드할 파일 목록 업데이트하기
-        setAttachmentFiles([...attachmentfiles, e.target.files[0]]);
+        setTempAttachmentFiles([...tempAttachmentFiles, e.target.files[0]]);
     };
 
     //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): db에는 올리지 않았으니, s3에서만 삭제하면 된다.
@@ -104,8 +107,8 @@ function Write() {
         console.log('삭제요청');
 
         //어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
-        setAttachmentFiles(
-            attachmentfiles.filter(
+        setTempAttachmentFiles(
+            tempAttachmentFiles.filter(
                 (attachmentfile, fileidx) => fileidx !== idx,
             ),
         );
@@ -121,8 +124,8 @@ function Write() {
         //     )
         //     .then((res) => {
         //         alert('삭제완료');
-        //         setAttachmentFiles(
-        //             attachmentfiles.filter((file) => file.FILEPATH !== Key),
+        //         setTempAttachmentFiles(
+        //             tempAttachmentFiles.filter((file) => file.FILEPATH !== Key),
         //         );
         //     });
     };
@@ -130,9 +133,9 @@ function Write() {
     //게시물 등록
     const handlePost = () => {
         //첨부파일이 빈 배열인 경우
-        if (attachmentfiles.length === 0) {
+        if (attachmentFiles.length === 0) {
             //바로 axios 요청 보낸다.
-            if (!title || !content || attachmentfiles === undefined) {
+            if (!title || !content || attachmentFiles === undefined) {
                 alert('제목과 내용 모두 입력해주세요');
                 return;
             }
@@ -160,52 +163,52 @@ function Write() {
                 });
         }
         //첨부파일이 빈 배열이 아닌 경우
-        if (!title || !content || attachmentfiles === undefined) {
+        if (!title || !content || attachmentFiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
         }
         //s3에 파일을 업로드한다.
         const filePromise = [];
-        for (let i = 0; i < attachmentfiles.length; i++) {
+        for (let i = 0; i < attachmentFiles.length; i++) {
             //업로드를 위한 presignedurl 요청
             const fileP = axios
                 .get(
-                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${e.target.files[0].name}`,
+                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${attachmentfiles[i].name}`,
                     { withCredentials: true },
                 )
                 .then((res) => {
                     //첨부파일 업로드
                     const presignedurl = res.data.data.signedUrl;
 
-                    axios
-                        .put(presignedurl, e.target.files[0], {
+                    return axios
+                        .put(presignedurl, attachmentFiles[i], {
                             headers: {
-                                'Content-Type': e.target.files[0].type,
+                                'Content-Type': attachmentFiles[i].type,
                             },
                         })
                         .then((res) => {
                             //버킷의 키 알아내기
                             const key = `${
                                 res.config.url.split('/')[3].split('-')[0]
-                            }-${e.target.files[0].name}`;
+                            }-${attachmentFiles[i].name}`;
 
                             //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                            setAttachmentFiles([
-                                ...attachmentfiles,
-                                {
-                                    FILENAME:
-                                        e.target.files[0].name.split('.')[0],
-                                    EXT: e.target.files[0].name.split('.')[1],
-                                    FILEPATH: key,
-                                    SIZE: e.target.files[0].size,
-                                },
-                            ]);
+                            // setTempAttachmentFiles([
+                            //     ...attachmentfiles,
+                            //     {
+                            //         FILENAME:
+                            //         attachmentfiles[i].name.split('.')[0],
+                            //         EXT: attachmentfiles[i].name.split('.')[1],
+                            //         FILEPATH: key,
+                            //         SIZE: attachmentfiles[i].size,
+                            //     },
+                            // ]);
                         });
                 });
+            filePromise.push(fileP);
         }
-        // Promise.all(filePromise).then(result => {
-        //     //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
-
-        // })
+        Promise.all(filePromise).then((result) => {
+            //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
+        });
     };
 
     console.log(attachmentfiles, '<Write>에서의 첨부파일 상태');
@@ -251,7 +254,7 @@ function Write() {
                         </label>
                         {/*첨부한 파일 목록 미리 띄우기*/}
                         <ul>
-                            {attachmentfiles.map((attachmentfile, idx) => {
+                            {attachmentFiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
                                         <a
