@@ -146,7 +146,7 @@ function Post() {
                                 <li key={idx}>
                                     <a
                                         href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
-                                        download={attachmentfile.FILEPATH}
+                                        download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
                                     >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                 </li>
                             );

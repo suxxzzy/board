@@ -57,8 +57,29 @@ function Write() {
         setContent(e.target.value);
     };
 
+    //작성 취소
     const goBack = () => {
-        navigate(-1);
+        //등록했던 첨부파일이 존재한다면, s3상에서 삭제해야 한다.
+        //여러개를 첨부했을 수 있으니 한번에 삭제
+        //주어진 배열에서 파일의 키 이름만 추출
+        const deletes = attachmentfiles.map((attachmentfile) => {
+            return {
+                Key: attachmentfile.FILEPATH,
+            };
+        });
+
+        axios
+            .post(
+                `${process.env.REACT_APP_API_URL}/attachmentfile`,
+                { deletes },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                alert('작성을 취소했습니다');
+                navigate(-1);
+            });
     };
 
     //파일 첨부시 업로드 할 수 있는 url서버에 요청
@@ -102,33 +123,20 @@ function Write() {
                                 EXT: e.target.files[0].name.split('.')[1],
                                 FILEPATH: key,
                                 SIZE: e.target.files[0].size,
-                                KEY: key,
                             },
                         ]);
                     });
             });
     };
-    console.log('<Write>', attachmentfiles);
 
-    //주어진 파일 이름(s3에서의 키)를 바탕으로 다운로드 링크 발급(한시적 접근)+ 해당 링크로 get요청 보내 다운로드.
-    const handleDownloadFile = (key) => {
-        console.log('파일 다운로드 요청');
-        axios
-            .get(
-                `${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${key}`,
-            )
-            .then((res) => {
-                console.log('다운로드 링크 발급받았음', res);
-            });
-    };
-
-    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
-    const handleDeleteFile = (key) => {
+    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): db에는 올리지 않았으니, s3에서만 삭제하면 된다.
+    const handleDeleteFile = (Key) => {
         console.log('삭제요청');
 
         axios
-            .delete(
-                `${process.env.REACT_APP_API_URL}/attachmentfile?filename=${key}`,
+            .post(
+                `${process.env.REACT_APP_API_URL}/attachmentfile`,
+                { deletes: [{ Key }] },
                 {
                     withCredentials: true,
                 },
@@ -136,7 +144,7 @@ function Write() {
             .then((res) => {
                 alert('삭제완료');
                 setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.FILEPATH !== key),
+                    attachmentfiles.filter((file) => file.FILEPATH !== Key),
                 );
             });
     };
@@ -221,7 +229,7 @@ function Write() {
                                     <li key={idx}>
                                         <a
                                             href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
-                                            download={attachmentfile.FILEPATH}
+                                            download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button
                                             onClick={() =>

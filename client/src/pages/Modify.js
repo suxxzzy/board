@@ -5,7 +5,6 @@ import styled from 'styled-components';
 //import * as fs from 'fs/promises';
 
 const Container = styled.section`
-    border: 1px solid red;
     display: flex;
     flex-direction: column;
     padding: 3rem;
@@ -47,7 +46,10 @@ function Modify() {
         location.state.board.ATTACHMENTFILES,
     );
 
-    console.log(attachmentfiles, '<Modify>의 첨부파일 상태');
+    console.log(
+        location.state.board.ATTACHMENTFILES,
+        '<Modify>의 초기 첨부파일 상태',
+    );
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -66,12 +68,6 @@ function Modify() {
             setPreview(e.target.files[0].name);
         };
 
-        let formData = new FormData();
-        formData.append('Content-Type', e.target.files[0].type);
-        formData.append('file', e.target.files[0]);
-
-        console.log('파일 형식', e.target.files[0].type);
-
         //업로드를 위한 presignedurl 요청
         axios
             .get(
@@ -83,7 +79,7 @@ function Modify() {
                 const presignedurl = res.data.data.signedUrl;
 
                 axios
-                    .put(presignedurl, formData, {
+                    .put(presignedurl, e.target.files[0], {
                         headers: {
                             'Content-Type': e.target.files[0].type,
                         },
@@ -102,19 +98,20 @@ function Modify() {
                                 EXT: e.target.files[0].name.split('.')[1],
                                 FILEPATH: key,
                                 SIZE: e.target.files[0].size,
-                                KEY: key,
                             },
                         ]);
                     });
             });
     };
 
-    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청)
-    const handleDeleteFile = (key) => {
+    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): 수정 취소할 경우를 대비해서, 렌더링만 처리한다. :
+    const handleDeleteFile = (Key) => {
         console.log('삭제요청');
+        const deletes = [{ Key }];
         axios
-            .delete(
-                `${process.env.REACT_APP_API_URL}/attachmentfile?filename=${key}`,
+            .post(
+                `${process.env.REACT_APP_API_URL}/attachmentfile`,
+                { deletes },
                 {
                     withCredentials: true,
                 },
@@ -123,7 +120,7 @@ function Modify() {
                 alert('삭제완료');
 
                 setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.FILEPATH !== key),
+                    attachmentfiles.filter((file) => file.FILEPATH !== Key),
                 );
             });
     };
@@ -150,7 +147,24 @@ function Modify() {
 
     //수정 취소
     const goBack = () => {
-        navigate(-1);
+        //수정 페이지 열고 첨부했던 파일들은 s3상에서 삭제해야 한다.
+        //새롭게 추가한 첨부파일들의 key를 추출한다
+        //첨부파일을 수정하지 않은 경우
+        //파일을 추가한 경우
+        //파일을 삭제한 경우 원복....
+        const deletes = [];
+        axios
+            .post(
+                `${process.env.REACT_APP_API_URL}/attachmentfile`,
+                { deletes },
+                {
+                    withCredentials: true,
+                },
+            )
+            .then((res) => {
+                console.log('삭제됨');
+                navigate(-1);
+            });
     };
     console.log(attachmentfiles, '첨부파일 목록');
     return (
@@ -197,7 +211,7 @@ function Modify() {
                                     <li key={idx}>
                                         <a
                                             href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
-                                            download={attachmentfile.FILEPATH}
+                                            download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
                                         >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
                                         <button
                                             onClick={() =>

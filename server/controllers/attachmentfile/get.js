@@ -1,11 +1,3 @@
-//클라이언트의 파일 다운로드 요청에 의해
-//한시적으로만 get요청(다운로드 요청)을 허용하는 url을 발급함
-
-//const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
-//const { s3Client } = require('../../config/s3client');
-//const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
-//import { Readable } from 'stream';
-//const { createWriteStream } = require('fs');
 const AWS = require('aws-sdk');
 const dotenv = require('dotenv');
 dotenv.config();

@@ -11,3 +11,6 @@ https://stackoverflow.com/questions/69810751/image-file-is-not-viewing-uploaded-
 https://velog.io/@godkimchichi/AWS-S3-presigned-url%EB%A1%9C-%EC%97%85%EB%A1%9C%EB%93%9C%EC%8B%9C-%ED%8C%8C%EC%9D%BC%EC%9D%B4-%EA%B9%A8%EC%A7%88-%EB%95%8C
 ㅠㅠㅠ
 갓김치!!
+
+//다운로드받는 방법
+https://stackoverflow.com/questions/48456537/how-do-you-download-a-file-from-aws-s3-to-a-clients-device
