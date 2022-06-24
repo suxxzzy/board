@@ -164,34 +164,41 @@ function Write() {
 
     //게시물 등록
     const handlePost = () => {
+        //첨부파일이 빈 배열인 경우
+        if (attachmentfiles.length === 0) {
+            //바로 axios 요청 보낸다.
+            if (!title || !content || attachmentfiles === undefined) {
+                alert('제목과 내용 모두 입력해주세요');
+            }
+            //서버에 axios 요청 보내기
+            axios
+                .post(
+                    `${process.env.REACT_APP_API_URL}/board`,
+                    {
+                        title,
+                        content,
+                        attachmentfiles, //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
+                    },
+                    { withCredentials: true },
+                ) //
+                .then((res) => {
+                    //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
+                    alert('등록되었습니다');
+                    console.log(res.data.data, '<Write>');
+                    navigate(`/board/${res.data.data.No}`, {
+                        state: {
+                            No: res.data.data.No,
+                            BID: res.data.data.BID,
+                        },
+                    });
+                });
+        }
+        //첨부파일이 빈 배열이 아닌 경우
         //첨부파일 없을 수도 있음
         //단 제목과 내용은 입력 필수
         if (!title || !content || attachmentfiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
         }
-
-        //서버에 axios 요청 보내기
-        axios
-            .post(
-                `${process.env.REACT_APP_API_URL}/board`,
-                {
-                    title,
-                    content,
-                    attachmentfiles, //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
-                },
-                { withCredentials: true },
-            ) //
-            .then((res) => {
-                //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
-                alert('등록되었습니다');
-                console.log(res.data.data, '<Write>');
-                navigate(`/board/${res.data.data.No}`, {
-                    state: {
-                        No: res.data.data.No,
-                        BID: res.data.data.BID,
-                    },
-                });
-            });
     };
 
     console.log(attachmentfiles, '<Write>에서의 첨부파일 상태');
