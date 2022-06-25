@@ -1,37 +1,7 @@
+import styled from 'styled-components';
 import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-
-const Container = styled.section`
-    display: flex;
-    flex-direction: column;
-    padding: 3rem;
-    > label {
-        font-weight: bold;
-    }
-    #title {
-        width: 90%;
-        height: 30px;
-    }
-    #content {
-        width: 90%;
-        height: 300px;
-        display: flex;
-        resize: none;
-    }
-    #button {
-        display: flex;
-        justify-content: center;
-    }
-    > section {
-        width: 90%;
-        display: flex;
-        > label {
-            font-weight: bold;
-        }
-    }
-`;
 
 function Modify() {
     const location = useLocation();
@@ -296,7 +266,7 @@ function Modify() {
             {!window.localStorage.getItem('userID') ? (
                 <Navigate replace to="/" />
             ) : (
-                <Container>
+                <Layout>
                     <h2>게시글 수정</h2>
                     <label htmlFor="title">제목</label>
                     <input
@@ -367,10 +337,48 @@ function Modify() {
                         <button onClick={goBack}>수정취소</button>
                         <button onClick={handleModify}>수정완료</button>
                     </section>
-                </Container>
+                </Layout>
             )}
         </>
     );
 }
+
+const Layout = styled.section`
+    display: flex;
+    flex-direction: column;
+    padding: 3rem;
+    > label {
+        font-weight: bold;
+    }
+    #title {
+        width: 90%;
+        height: 30px;
+    }
+    #content {
+        width: 90%;
+        height: 300px;
+        display: flex;
+        resize: none;
+    }
+    #attachmentfiles {
+        border: 1px solid gray;
+        padding: 1rem 0rem;
+        #find {
+            background-color: gray;
+            color: white;
+        }
+    }
+    #button {
+        display: flex;
+        justify-content: center;
+    }
+    > section {
+        width: 90%;
+        display: flex;
+        > label {
+            font-weight: bold;
+        }
+    }
+`;
 
 export default Modify;

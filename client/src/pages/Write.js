@@ -1,46 +1,7 @@
+import styled from 'styled-components';
 import axios from 'axios';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-
-import styled from 'styled-components';
-
-const Container = styled.section`
-    display: flex;
-    flex-direction: column;
-    padding: 3rem;
-    > label {
-        font-weight: bold;
-    }
-    #title {
-        width: 90%;
-        height: 30px;
-    }
-    #content {
-        width: 90%;
-        height: 300px;
-        display: flex;
-        resize: none;
-    }
-    #attachmentfiles {
-        border: 1px solid gray;
-        padding: 1rem 0rem;
-        #find {
-            background-color: gray;
-            color: white;
-        }
-    }
-    #button {
-        display: flex;
-        justify-content: center;
-    }
-    > section {
-        width: 90%;
-        display: flex;
-        > label {
-            font-weight: bold;
-        }
-    }
-`;
 
 function Write() {
     const navigate = useNavigate();
@@ -69,6 +30,7 @@ function Write() {
         reader.readAsDataURL(e.target.files[0]);
 
         console.log(e.target.files, '파일정보');
+        //파일은 최대 5개까지만 첨부가능하고, 용량은..
 
         //파일명 미리보기 띄우기
         reader.onload = () => {
@@ -188,7 +150,7 @@ function Write() {
             {!window.localStorage.getItem('userID') ? (
                 <Navigate replace to="/" />
             ) : (
-                <Container>
+                <Layout>
                     <h2>게시글 등록</h2>
                     <label htmlFor="title">제목</label>
                     <input
@@ -244,10 +206,48 @@ function Write() {
                         <button onClick={goBack}>작성취소</button>
                         <button onClick={handlePost}>작성완료</button>
                     </section>
-                </Container>
+                </Layout>
             )}
         </>
     );
 }
+
+const Layout = styled.section`
+    display: flex;
+    flex-direction: column;
+    padding: 3rem;
+    > label {
+        font-weight: bold;
+    }
+    #title {
+        width: 90%;
+        height: 30px;
+    }
+    #content {
+        width: 90%;
+        height: 300px;
+        display: flex;
+        resize: none;
+    }
+    #attachmentfiles {
+        border: 1px solid gray;
+        padding: 1rem 0rem;
+        #find {
+            background-color: gray;
+            color: white;
+        }
+    }
+    #button {
+        display: flex;
+        justify-content: center;
+    }
+    > section {
+        width: 90%;
+        display: flex;
+        > label {
+            font-weight: bold;
+        }
+    }
+`;
 
 export default Write;

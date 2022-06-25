@@ -1,5 +1,11 @@
 import axios from 'axios';
-import { Container, Table, RowHeader, Col, ButtonList } from './Div';
+import {
+    Container,
+    Table,
+    RowHeader,
+    Col,
+    ButtonList,
+} from '../components/Div';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
@@ -64,12 +70,6 @@ function Board() {
     //삭제 요청
     const handleDelete = () => {
         console.log('삭제요청');
-        //??
-        // if (!window.localStorage.getItem('userID')) {
-        //     alert('로그인이 필요합니다');
-        //     return;
-        // }
-
         //아무것도 체크가 안되어있으면 삭제할 게시물을 선택해주세요 띄우기
         if (checkedPosts.length === 0) {
             alert('삭제할 게시물을 선택하세요');

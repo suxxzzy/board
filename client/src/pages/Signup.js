@@ -1,7 +1,7 @@
-import axios from 'axios';
-import { Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import axios from 'axios';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { SignInput } from '../components/Input';
 import { ValidateMessage, ErrorMessage } from '../components/validateMsg';
 import { SignButton } from '../components/Button';
@@ -10,24 +10,6 @@ import {
     isValidPassword,
     isSamePassword,
 } from '../modules/validator';
-
-const Container = styled.div`
-    // border: 1px solid black;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 90%;
-    > label {
-        // border: 1px solid blue;
-        width: 400px;
-    }
-    > div {
-        // border: 1px solid blue;
-        width: 400px;
-        text-align: center;
-    }
-`;
 
 function Signup() {
     const navigate = useNavigate();
@@ -104,7 +86,7 @@ function Signup() {
     };
 
     return (
-        <Container>
+        <Layout>
             <h2>회원가입</h2>
             <label htmlFor="userid">아이디</label>
             <SignInput
@@ -167,8 +149,26 @@ function Signup() {
                 <ErrorMessage>{errorMessage}</ErrorMessage>
             ) : null}
             <SignButton onClick={handleSignup}>회원가입</SignButton>
-        </Container>
+        </Layout>
     );
 }
+
+const Layout = styled.div`
+    // border: 1px solid black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+    > label {
+        // border: 1px solid blue;
+        width: 400px;
+    }
+    > div {
+        // border: 1px solid blue;
+        width: 400px;
+        text-align: center;
+    }
+`;
 
 export default Signup;

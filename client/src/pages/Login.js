@@ -1,28 +1,10 @@
-import axios from 'axios';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
-import { useState } from 'react';
 import styled from 'styled-components';
+import axios from 'axios';
+import { useState } from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { SignInput } from '../components/Input';
 import { ErrorMessage } from '../components/validateMsg';
-
 import { SignButton } from '../components/Button';
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    height: 90%;
-    > label {
-        //border: 1px solid blue;
-        width: 400px;
-    }
-    > div {
-        // border: 1px solid blue;
-        width: 400px;
-        text-align: center;
-    }
-`;
 
 function Login() {
     const navigate = useNavigate();
@@ -70,7 +52,7 @@ function Login() {
             {window.localStorage.getItem('userID') ? (
                 <Navigate replace to="/board" />
             ) : (
-                <Container>
+                <Layout>
                     <label htmlFor="userid" onClick={() => alert('hello')}>
                         아이디
                     </label>
@@ -94,10 +76,27 @@ function Login() {
                     <Link to="/signup">
                         <div>회원가입</div>
                     </Link>
-                </Container>
+                </Layout>
             )}
         </>
     );
 }
+
+const Layout = styled.div`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 90%;
+    > label {
+        //border: 1px solid blue;
+        width: 400px;
+    }
+    > div {
+        // border: 1px solid blue;
+        width: 400px;
+        text-align: center;
+    }
+`;
 
 export default Login;
