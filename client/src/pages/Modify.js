@@ -2,7 +2,6 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-//import * as fs from 'fs/promises';
 
 const Container = styled.section`
     display: flex;
@@ -42,9 +41,12 @@ function Modify() {
     const [title, setTitle] = useState(location.state.board.TITLE);
     const [content, setContent] = useState(location.state.board.CONTENT);
     const [preview, setPreview] = useState('');
-    const [attachmentfiles, setAttachmentFiles] = useState(
+    //s3에도 이미 등록되어 있는 첨부파일의 정보
+    const [attachmentfiles, setAttachmentfiles] = useState(
         location.state.board.ATTACHMENTFILES,
     );
+    //수정 페이지 접속 후 파일을 임시로 담을 상태값
+    const [tempAttachmentfiles, setTempAttachmentfiles] = useState([]); //s3에 올라갈 파일 그 자체
 
     console.log(
         location.state.board.ATTACHMENTFILES,
@@ -59,6 +61,7 @@ function Modify() {
         setContent(e.target.value);
     };
 
+    //수정페이지 접속 후 파일 업로드
     const handleUploadFile = (e) => {
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
@@ -68,105 +71,226 @@ function Modify() {
             setPreview(e.target.files[0].name);
         };
 
-        //업로드를 위한 presignedurl 요청
-        axios
-            .get(
-                `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl/?filename=${e.target.files[0].name}`,
-                { withCredentials: true },
-            )
-            .then((res) => {
-                //첨부파일 업로드
-                const presignedurl = res.data.data.signedUrl;
-
-                axios
-                    .put(presignedurl, e.target.files[0], {
-                        headers: {
-                            'Content-Type': e.target.files[0].type,
-                        },
-                    })
-                    .then((res) => {
-                        //버킷의 키 알아내기
-                        const key = `${
-                            res.config.url.split('/')[3].split('-')[0]
-                        }-${e.target.files[0].name}`;
-
-                        //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                        setAttachmentFiles([
-                            ...attachmentfiles,
-                            {
-                                FILENAME: e.target.files[0].name.split('.')[0],
-                                EXT: e.target.files[0].name.split('.')[1],
-                                FILEPATH: key,
-                                SIZE: e.target.files[0].size,
-                            },
-                        ]);
-                    });
-            });
+        //업로드할 파일 목록 업데이트하기
+        setTempAttachmentfiles([...tempAttachmentfiles, e.target.files[0]]);
     };
 
-    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): 수정 취소할 경우를 대비해서, 렌더링만 처리한다. :
-    const handleDeleteFile = (Key) => {
+    //수정페이지 접속 후 올린 파일을 삭제
+    //(s3에 있는거나, 수정페이지 접속 후 올린걸 삭제하는 거나 똑같이 화면에서만 안보이게 하기)
+    const handleDeleteFile = (idx) => {
         console.log('삭제요청');
-        const deletes = [{ Key }];
-        axios
-            .post(
-                `${process.env.REACT_APP_API_URL}/attachmentfile`,
-                { deletes },
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((res) => {
-                alert('삭제완료');
 
-                setAttachmentFiles(
-                    attachmentfiles.filter((file) => file.FILEPATH !== Key),
-                );
-            });
+        setTempAttachmentfiles(
+            tempAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
+        );
     };
 
-    //게시물 수정
-    const handleModify = () => {
-        console.log(location.state, '상태값');
-        axios
-            .patch(
-                `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
-                { title, content, attachmentfiles },
-                { withCredentials: true },
-            )
-            .then((res) => {
-                alert('수정되었습니다');
-                navigate(`/board/${location.state.board.No}`, {
-                    state: {
-                        No: location.state.board.No,
-                        BID: location.state.board.BID,
-                    },
+    //수정 전 업로드한 파일 삭제
+    //수정 취소할 경우를 대비해서, 렌더링만 처리한다
+    const handleDeleteFileOnS3 = (idx) => {
+        setAttachmentfiles(
+            attachmentfiles.filter((_, fileidx) => fileidx !== idx),
+        );
+    };
+
+    //게시물 수정완료
+    const handleModify = async () => {
+        if (!title || !content || attachmentfiles === undefined) {
+            alert('제목과 내용 모두 입력해주세요');
+            return;
+        }
+
+        console.log(attachmentfiles, '파일정보');
+
+        //기존 파일의 키들
+        const keys = location.state.board.ATTACHMENTFILES.map(
+            (attachmentfile) => attachmentfile.FILEPATH,
+        );
+
+        //화면에서 보이는 기존 파일
+        const attKeys = attachmentfiles.map((file) => file.FILEPATH);
+
+        //기존의 파일에서 삭제한 내역 구하기
+        const deletes = keys
+            .filter((Key) => !attKeys.includes(Key))
+            .map((Key) => {
+                return { Key };
+            });
+
+        //삭제할 파일이 존재하지 않는 경우
+        if (deletes.length === 0) {
+            //업로드할 파일이 존재하지 않는 경우
+            if (tempAttachmentfiles.length === 0) {
+                return axios
+                    .patch(
+                        `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                        { title, content, attachmentfiles: [] },
+                        { withCredentials: true },
+                    )
+                    .then((res) => {
+                        alert('수정되었습니다');
+                        navigate(`/board/${location.state.board.No}`, {
+                            state: {
+                                No: location.state.board.No,
+                                BID: location.state.board.BID,
+                            },
+                        });
+                    });
+            } else {
+                //업로드할 파일이 존재하는 경우
+                //S3에 파일 올리고 정보 받아온다음 디비에 저장
+                const filePromise = [];
+                for (let i = 0; i < tempAttachmentfiles.length; i++) {
+                    //업로드를 위한 presignedurl 요청
+                    const uploadPromise = axios
+                        .get(
+                            `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${tempAttachmentfiles[i].name}`,
+                            { withCredentials: true },
+                        )
+                        .then(async (res) => {
+                            //첨부파일 업로드
+                            const presignedurl = res.data.data.signedUrl;
+
+                            const res_1 = await axios.put(
+                                presignedurl,
+                                tempAttachmentfiles[i],
+                                {
+                                    headers: {
+                                        'Content-Type':
+                                            tempAttachmentfiles[i].type,
+                                    },
+                                },
+                            );
+                            //버킷의 키 알아내기
+                            const key = `${
+                                res_1.config.url.split('/')[3].split('-')[0]
+                            }-${tempAttachmentfiles[i].name}`;
+                            return {
+                                FILENAME:
+                                    tempAttachmentfiles[i].name.split('.')[0],
+                                EXT: tempAttachmentfiles[i].name.split('.')[1],
+                                FILEPATH: key,
+                                SIZE: tempAttachmentfiles[i].size,
+                            };
+                        });
+                    filePromise.push(uploadPromise);
+                }
+
+                Promise.all(filePromise).then((res) => {
+                    axios
+                        .patch(
+                            `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                            {
+                                title,
+                                content,
+                                attachmentfiles: res,
+                            },
+                            { withCredentials: true },
+                        )
+                        .then((res) => {
+                            alert('수정되었습니다');
+                            navigate(`/board/${location.state.board.No}`, {
+                                state: {
+                                    No: location.state.board.No,
+                                    BID: location.state.board.BID,
+                                },
+                            });
+                        });
                 });
-            });
-    };
+            }
+        } else {
+            //s3에 삭제할 파일이 존재하는 경우
+            await axios.post(
+                `${process.env.REACT_APP_API_URL}/attachmentfile`,
+                {
+                    deletes,
+                },
+                { withCredentials: true },
+            );
+            //업로드할 파일이 존재하지 않는 경우
+            if (tempAttachmentfiles.length === 0) {
+                return axios
+                    .patch(
+                        `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                        { title, content, attachmentfiles: [] },
+                        { withCredentials: true },
+                    )
+                    .then((res) => {
+                        alert('수정되었습니다');
+                        navigate(`/board/${location.state.board.No}`, {
+                            state: {
+                                No: location.state.board.No,
+                                BID: location.state.board.BID,
+                            },
+                        });
+                    });
+            } else {
+                const filePromise = [];
+                for (let i = 0; i < tempAttachmentfiles.length; i++) {
+                    //업로드를 위한 presignedurl 요청
+                    const uploadPromise = axios
+                        .get(
+                            `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${tempAttachmentfiles[i].name}`,
+                            { withCredentials: true },
+                        )
+                        .then(async (res) => {
+                            //첨부파일 업로드
+                            const presignedurl = res.data.data.signedUrl;
 
+                            const res_1 = await axios.put(
+                                presignedurl,
+                                tempAttachmentfiles[i],
+                                {
+                                    headers: {
+                                        'Content-Type':
+                                            tempAttachmentfiles[i].type,
+                                    },
+                                },
+                            );
+                            //버킷의 키 알아내기
+                            const key = `${
+                                res_1.config.url.split('/')[3].split('-')[0]
+                            }-${tempAttachmentfiles[i].name}`;
+                            return {
+                                FILENAME:
+                                    tempAttachmentfiles[i].name.split('.')[0],
+                                EXT: tempAttachmentfiles[i].name.split('.')[1],
+                                FILEPATH: key,
+                                SIZE: tempAttachmentfiles[i].size,
+                            };
+                        });
+                    filePromise.push(uploadPromise);
+                }
+
+                Promise.all(filePromise).then((res) => {
+                    axios
+                        .patch(
+                            `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                            {
+                                title,
+                                content,
+                                attachmentfiles: res,
+                            },
+                            { withCredentials: true },
+                        )
+                        .then((res) => {
+                            alert('수정되었습니다');
+                            navigate(`/board/${location.state.board.No}`, {
+                                state: {
+                                    No: location.state.board.No,
+                                    BID: location.state.board.BID,
+                                },
+                            });
+                        });
+                });
+            }
+        }
+    };
     //수정 취소
     const goBack = () => {
-        //수정 페이지 열고 첨부했던 파일들은 s3상에서 삭제해야 한다.
-        //새롭게 추가한 첨부파일들의 key를 추출한다
-        //첨부파일을 수정하지 않은 경우
-        //파일을 추가한 경우
-        //파일을 삭제한 경우 원복....
-        const deletes = [];
-        axios
-            .post(
-                `${process.env.REACT_APP_API_URL}/attachmentfile`,
-                { deletes },
-                {
-                    withCredentials: true,
-                },
-            )
-            .then((res) => {
-                console.log('삭제됨');
-                navigate(-1);
-            });
+        navigate(-1);
     };
-    console.log(attachmentfiles, '첨부파일 목록');
+
     return (
         <>
             {!window.localStorage.getItem('userID') ? (
@@ -204,20 +328,15 @@ function Modify() {
                         <label htmlFor="fileupload" id="find">
                             찾아보기
                         </label>
-                        {/*첨부한 파일 목록 미리 띄우기*/}
                         <ul>
+                            {/*기존에 있었던 파일 목록*/}
                             {attachmentfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
-                                        <a
-                                            href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
-                                            download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
-                                        >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                        <div>{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</div>
                                         <button
                                             onClick={() =>
-                                                handleDeleteFile(
-                                                    attachmentfile.FILEPATH,
-                                                )
+                                                handleDeleteFileOnS3(idx)
                                             }
                                         >
                                             삭제
@@ -225,6 +344,23 @@ function Modify() {
                                     </li>
                                 );
                             })}
+                            {/*수정 페이지 접속 후 새로 등록한 파일 보여주기*/}
+                            {tempAttachmentfiles.map(
+                                (tempAttachmentfile, idx) => {
+                                    return (
+                                        <li key={idx}>
+                                            <div>{tempAttachmentfile.name}</div>
+                                            <button
+                                                onClick={() =>
+                                                    handleDeleteFile(idx)
+                                                }
+                                            >
+                                                삭제
+                                            </button>
+                                        </li>
+                                    );
+                                },
+                            )}
                         </ul>
                     </section>
                     <section id="button">

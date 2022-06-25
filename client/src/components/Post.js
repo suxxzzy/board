@@ -1,16 +1,5 @@
-import styled from 'styled-components';
+import { Row, Col } from './Div';
 import { timeConverter_Board } from '../modules/datetimeconverter';
-
-const Row = styled.div`
-    display: table-row;
-`;
-
-const Col = styled.div`
-    display: table-cell;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-`;
 
 function Post({
     handleCheckChange,

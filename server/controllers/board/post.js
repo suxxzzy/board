@@ -68,6 +68,7 @@ module.exports = async (req, res) => {
 
         res.status(201).json({
             data: {
+                No: No,
                 BID: newPost.BID,
                 USERID: author.UID,
                 TITLE: newPost.TITLE,

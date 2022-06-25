@@ -47,8 +47,8 @@ function Write() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState('');
-    const [tempAttachmentFiles, setTempAttachmentFiles] = useState([]); //s3에 올라갈 파일 그 자체
-    const [attachmentFiles, setAttachmentFiles] = useState([]); //실질적으로 db에 올릴 파일정보
+    const [tempAttachmentfiles, setTempAttachmentfiles] = useState([]); //s3에 올라갈 파일 그 자체
+    const [attachmentfiles, setAttachmentfiles] = useState([]); //실질적으로 db에 올릴 파일정보
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -60,38 +60,15 @@ function Write() {
 
     //작성 취소
     const goBack = () => {
-        //등록했던 첨부파일이 존재한다면, s3상에서 삭제해야 한다.
-        //여러개를 첨부했을 수 있으니 한번에 삭제
-        //주어진 배열에서 파일의 키 이름만 추출
-        // const deletes = tempAttachmentFiles.map((attachmentfile) => {
-        //     return {
-        //         Key: attachmentfile.FILEPATH,
-        //     };
-        // });
-
-        // axios
-        //     .post(
-        //         `${process.env.REACT_APP_API_URL}/attachmentfile`,
-        //         { deletes },
-        //         {
-        //             withCredentials: true,
-        //         },
-        //     )
-        //     .then((res) => {
-        //         alert('작성을 취소했습니다');
-        //         navigate(-1);
-        //     });
-
         navigate(-1);
     };
-
-    //파일 첨부시 업로드 할 수 있는 url서버에 요청
-    //=> 성공시 s3 url에 즉시 업로드: 이때, 파일을 다운로드 받을 수 있는 링크를 받아와야 한다.!!
 
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
+
+        console.log(e.target.files, '파일정보');
 
         //파일명 미리보기 띄우기
         reader.onload = () => {
@@ -99,49 +76,28 @@ function Write() {
         };
 
         //업로드할 파일 목록 업데이트하기
-        setTempAttachmentFiles([...tempAttachmentFiles, e.target.files[0]]);
+        setTempAttachmentfiles([...tempAttachmentfiles, e.target.files[0]]);
     };
 
-    //업로드한 파일 삭제(버킷에 있는 파일 삭제 요청): db에는 올리지 않았으니, s3에서만 삭제하면 된다.
+    //업로드한 파일 삭제:  어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
     const handleDeleteFile = (idx) => {
         console.log('삭제요청');
 
-        //어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
-        setTempAttachmentFiles(
-            tempAttachmentFiles.filter(
-                (attachmentfile, fileidx) => fileidx !== idx,
-            ),
+        setTempAttachmentfiles(
+            tempAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
         );
-
-        //굳이..
-        // axios
-        //     .post(
-        //         `${process.env.REACT_APP_API_URL}/attachmentfile`,
-        //         { deletes: [{ Key }] },
-        //         {
-        //             withCredentials: true,
-        //         },
-        //     )
-        //     .then((res) => {
-        //         alert('삭제완료');
-        //         setTempAttachmentFiles(
-        //             tempAttachmentFiles.filter((file) => file.FILEPATH !== Key),
-        //         );
-        //     });
     };
 
     //게시물 등록
-    const handlePost = () => {
-        if (!title || !content || attachmentFiles === undefined) {
+    const handlePost = async () => {
+        if (!title || !content || attachmentfiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
             return;
         }
-        //첨부파일이 빈 배열인 경우
-        if (attachmentFiles.length === 0) {
-            //바로 axios 요청 보낸다.
-
+        //첨부파일이 빈 배열인 경우 바로 axios 요청 보낸다.
+        if (tempAttachmentfiles.length === 0) {
             //서버에 axios 요청 보내기
-            return axios
+            axios
                 .post(
                     `${process.env.REACT_APP_API_URL}/board`,
                     {
@@ -166,50 +122,66 @@ function Write() {
         //첨부파일이 빈 배열이 아닌 경우
         //s3에 파일을 업로드한다.
         const filePromise = [];
-        for (let i = 0; i < attachmentFiles.length; i++) {
+        for (let i = 0; i < tempAttachmentfiles.length; i++) {
             //업로드를 위한 presignedurl 요청
-            const fileP = axios
+            const uploadPromise = axios
                 .get(
-                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${attachmentfiles[i].name}`,
+                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${tempAttachmentfiles[i].name}`,
                     { withCredentials: true },
                 )
-                .then((res) => {
+                .then(async (res) => {
                     //첨부파일 업로드
                     const presignedurl = res.data.data.signedUrl;
 
-                    return axios
-                        .put(presignedurl, attachmentFiles[i], {
+                    const res_1 = await axios.put(
+                        presignedurl,
+                        tempAttachmentfiles[i],
+                        {
                             headers: {
-                                'Content-Type': attachmentFiles[i].type,
+                                'Content-Type': tempAttachmentfiles[i].type,
                             },
-                        })
-                        .then((res) => {
-                            //버킷의 키 알아내기
-                            const key = `${
-                                res.config.url.split('/')[3].split('-')[0]
-                            }-${attachmentFiles[i].name}`;
-
-                            //파일 업로드 성공. 파일의 주소를 반환받아야 한다.
-                            // setTempAttachmentFiles([
-                            //     ...attachmentfiles,
-                            //     {
-                            //         FILENAME:
-                            //         attachmentfiles[i].name.split('.')[0],
-                            //         EXT: attachmentfiles[i].name.split('.')[1],
-                            //         FILEPATH: key,
-                            //         SIZE: attachmentfiles[i].size,
-                            //     },
-                            // ]);
-                        });
+                        },
+                    );
+                    //버킷의 키 알아내기
+                    const key = `${
+                        res_1.config.url.split('/')[3].split('-')[0]
+                    }-${tempAttachmentfiles[i].name}`;
+                    return {
+                        FILENAME: tempAttachmentfiles[i].name.split('.')[0],
+                        EXT: tempAttachmentfiles[i].name.split('.')[1],
+                        FILEPATH: key,
+                        SIZE: tempAttachmentfiles[i].size,
+                    };
                 });
-            filePromise.push(fileP);
+            filePromise.push(uploadPromise);
         }
-        Promise.all(filePromise).then((result) => {
+
+        Promise.all(filePromise).then((res) => {
             //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
+            //서버에 axios 요청 보내기
+            console.log(res, '프롬이스 올 응답??');
+            axios
+                .post(
+                    `${process.env.REACT_APP_API_URL}/board`,
+                    {
+                        title,
+                        content,
+                        attachmentfiles: res,
+                    },
+                    { withCredentials: true },
+                ) //
+                .then((res) => {
+                    alert('등록되었습니다');
+                    console.log(res.data.data, '<Write>');
+                    navigate(`/board/${res.data.data.No}`, {
+                        state: {
+                            No: res.data.data.No,
+                            BID: res.data.data.BID,
+                        },
+                    });
+                });
         });
     };
-
-    console.log(attachmentfiles, '<Write>에서의 첨부파일 상태');
 
     return (
         <>
@@ -252,13 +224,10 @@ function Write() {
                         </label>
                         {/*첨부한 파일 목록 미리 띄우기*/}
                         <ul>
-                            {attachmentFiles.map((attachmentfile, idx) => {
+                            {tempAttachmentfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
-                                        <a
-                                            href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
-                                            download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
-                                        >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                        <div>{attachmentfile.name}</div>
                                         <button
                                             onClick={() =>
                                                 handleDeleteFile(idx)

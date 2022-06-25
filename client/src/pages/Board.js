@@ -1,45 +1,11 @@
 import axios from 'axios';
-import styled from 'styled-components';
+import { Container, Table, RowHeader, Col, ButtonList } from './Div';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
 import Pagination from '../components/Pagination';
 import Searchbar from '../components/Searchbar';
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: center;
-    height: 90%;
-`;
-
-const Table = styled.div`
-    display: table;
-    width: 80%;
-    margin: 1rem;
-    border: 1px solid gray;
-`;
-
-const RowHeader = styled.div`
-    display: table-row;
-`;
-
-const Col = styled.div`
-    display: table-cell;
-    border-right: 1px solid #ddd;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-    padding: 5px 0px;
-`;
-
-const ButtonList = styled.div`
-    // border: 1px solid red;
-    width: 80%;
-    display: flex;
-    justify-content: flex-end;
-`;
 
 function Board() {
     const navigate = useNavigate();
