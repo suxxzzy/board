@@ -68,6 +68,10 @@ function Modify() {
     //수정페이지 접속 후 올린 파일을 삭제
     //(s3에 있는거나, 수정페이지 접속 후 올린걸 삭제하는 거나 똑같이 화면에서만 안보이게 하기)
     const handleDeleteNewFile = (idx) => {
+        //만약 1개 남은 상태서 삭제시
+        if (newAttachmentfiles.length === 1) {
+            setPreview('');
+        }
         setNewAttachmentfiles(
             newAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
         );
