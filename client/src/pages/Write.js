@@ -25,6 +25,12 @@ function Write() {
 
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
+        const filenames = attachmentfiles.map((el) => el.name);
+        //중복 첨부 제외
+        if (filenames.includes(e.target.files[0].name)) {
+            alert('이미 첨부한 파일입니다');
+            return;
+        }
         //첨부 개수 제한
         if (attachmentfiles.length + 1 > 5) {
             alert('최대 5개까지만 첨부 가능합니다');

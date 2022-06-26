@@ -28,7 +28,7 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
     //다음의 페이지 보여주는 함수
     const gotoNext = () => {
         const totalPages = Math.ceil(totalPosts / 10);
-        //전체 페이지수가 4개 미만
+        //전체 페이지수가 4개 이하
         //전체 페이지수가 4의 배수이고 시작 페이지 위치가 전체페이지 -3일때
         //전체 페이지가 4의 배수가 아닐 때:
         if (
