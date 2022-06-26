@@ -8,11 +8,8 @@ dotenv.config();
 //하나 또는 여러 개의 object를 지운다. object의 key는 배열로 받는다.
 module.exports = async (req, res) => {
     try {
-        console.log('삭제 요청');
         //객체의 실제 키 정보를 받는다.
         const { deletes } = req.body;
-
-        console.log(deletes, '삭제할 객체 정보');
 
         if (!deletes) {
             return res.status(400).json({ message: '키 이름이 없습니다' });

@@ -3,7 +3,6 @@ dotenv.config();
 
 module.exports = async (req, res) => {
     try {
-        console.log('요청받은 사용자 아이디는?', req.id);
         return res
             .status(200)
             .cookie('accessToken', null, {

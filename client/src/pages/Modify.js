@@ -5,7 +5,6 @@ import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 
 function Modify() {
     const location = useLocation();
-    console.log(location.state, '수정 전 내용');
     const navigate = useNavigate();
     //수정 전 내용 받아와 저장
     const [title, setTitle] = useState(location.state.board.TITLE);
@@ -17,11 +16,6 @@ function Modify() {
     );
     //수정 페이지 접속 후 파일을 임시로 담을 상태값
     const [tempAttachmentfiles, setTempAttachmentfiles] = useState([]); //s3에 올라갈 파일 그 자체
-
-    console.log(
-        location.state.board.ATTACHMENTFILES,
-        '<Modify>의 초기 첨부파일 상태',
-    );
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -48,8 +42,6 @@ function Modify() {
     //수정페이지 접속 후 올린 파일을 삭제
     //(s3에 있는거나, 수정페이지 접속 후 올린걸 삭제하는 거나 똑같이 화면에서만 안보이게 하기)
     const handleDeleteFile = (idx) => {
-        console.log('삭제요청');
-
         setTempAttachmentfiles(
             tempAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
         );
@@ -69,8 +61,6 @@ function Modify() {
             alert('제목과 내용 모두 입력해주세요');
             return;
         }
-
-        console.log(attachmentfiles, '파일정보');
 
         //기존 파일의 키들
         const keys = location.state.board.ATTACHMENTFILES.map(
@@ -363,6 +353,20 @@ const Layout = styled.section`
     #attachmentfiles {
         border: 1px solid gray;
         padding: 1rem 0rem;
+        #file {
+            border: 1px solid gray;
+            background-color: aliceblue;
+            width: 300px;
+            height: 30px;
+            &:focus {
+                outline: none;
+            }
+        }
+        #find {
+            background-color: gray;
+            color: white;
+            height: 30px;
+        }
         #find {
             background-color: gray;
             color: white;

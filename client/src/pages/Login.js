@@ -15,7 +15,6 @@ function Login() {
     });
 
     const handleLoginInputValue = (key) => (e) => {
-        console.log('working');
         setLoginInfo({ ...loginInfo, [key]: e.target.value });
     };
 

@@ -5,7 +5,6 @@ const { board } = initModels(sequelize);
 module.exports = async (req, res) => {
     try {
         const { deletes } = req.body;
-        console.log(deletes, '삭제할 게시물들');
         //삭제할 게시물 id가 없다면, 삭제 거부
         if (deletes.length === 0) {
             return res

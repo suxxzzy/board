@@ -26,11 +26,21 @@ function Write() {
 
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
+        if (tempAttachmentfiles.length + 1 > 5) {
+            alert('최대 5개까지만 첨부 가능합니다');
+            //setPreview()
+            setTempAttachmentfiles(tempAttachmentfiles.slice(0, 5));
+            return;
+        }
+        //파일은 최대 5개까지만 첨부가능하고, 용량은..1개당 최대 50mb까지만 허용하기
+        if (e.target.files[0].size > 50 * 1048576) {
+            alert('1개당 최대 50mb까지만 첨부가능합니다');
+            setPreview('');
+            return;
+        }
+
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
-
-        console.log(e.target.files, '파일정보');
-        //파일은 최대 5개까지만 첨부가능하고, 용량은..
 
         //파일명 미리보기 띄우기
         reader.onload = () => {
@@ -43,7 +53,10 @@ function Write() {
 
     //업로드한 파일 삭제:  어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
     const handleDeleteFile = (idx) => {
-        console.log('삭제요청');
+        //만약 1개 남은 상태서 삭제시
+        if (tempAttachmentfiles.length === 1) {
+            setPreview('');
+        }
 
         setTempAttachmentfiles(
             tempAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
@@ -72,7 +85,6 @@ function Write() {
                 .then((res) => {
                     //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
                     alert('등록되었습니다');
-                    console.log(res.data.data, '<Write>');
                     navigate(`/board/${res.data.data.No}`, {
                         state: {
                             No: res.data.data.No,
@@ -121,7 +133,6 @@ function Write() {
         Promise.all(filePromise).then((res) => {
             //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
             //서버에 axios 요청 보내기
-            console.log(res, '프롬이스 올 응답??');
             axios
                 .post(
                     `${process.env.REACT_APP_API_URL}/board`,
@@ -134,7 +145,6 @@ function Write() {
                 ) //
                 .then((res) => {
                     alert('등록되었습니다');
-                    console.log(res.data.data, '<Write>');
                     navigate(`/board/${res.data.data.No}`, {
                         state: {
                             No: res.data.data.No,
@@ -232,9 +242,19 @@ const Layout = styled.section`
     #attachmentfiles {
         border: 1px solid gray;
         padding: 1rem 0rem;
+        #file {
+            border: 1px solid gray;
+            background-color: aliceblue;
+            width: 300px;
+            height: 30px;
+            &:focus {
+                outline: none;
+            }
+        }
         #find {
             background-color: gray;
             color: white;
+            height: 30px;
         }
     }
     #button {

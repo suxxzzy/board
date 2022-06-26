@@ -9,8 +9,6 @@ module.exports = async (req, res) => {
         const { id } = req;
         const { title, content, attachmentfiles } = req.body;
 
-        console.log(id, title, content, '등록할 게시물 내용');
-
         if (!title || !content || attachmentfiles === undefined) {
             return res
                 .status(400)
@@ -29,15 +27,12 @@ module.exports = async (req, res) => {
             VIEWCOUNT: 0,
         });
 
-        console.log(newPost.BID, '게시물 BID');
         //게시판에 표시할 No 구하기
         const No = await board.count({
             where: {
                 DISCD: 0,
             },
         });
-
-        console.log(No, '화면에 보여줄 게시물 번호');
 
         //첨부파일이 없는 경우
         if (attachmentfiles.length === 0) {
@@ -61,8 +56,6 @@ module.exports = async (req, res) => {
             file.BID = newPost.BID;
             file.CRTIME = getCRTIME();
         });
-
-        console.log(attachmentfiles, '변경');
 
         await attachmentfile.bulkCreate(attachmentfiles);
 

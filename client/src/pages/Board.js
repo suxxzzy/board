@@ -59,7 +59,6 @@ function Board() {
 
     //개별 체크
     const handleCheckChange = (checked, BID, UID) => {
-        console.log(checked, BID, UID);
         if (checked) {
             setCheckedPosts([...checkedPosts, { BID, UID }]);
         } else {
@@ -69,7 +68,6 @@ function Board() {
 
     //삭제 요청
     const handleDelete = () => {
-        console.log('삭제요청');
         //아무것도 체크가 안되어있으면 삭제할 게시물을 선택해주세요 띄우기
         if (checkedPosts.length === 0) {
             alert('삭제할 게시물을 선택하세요');

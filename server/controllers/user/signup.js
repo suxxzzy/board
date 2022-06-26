@@ -8,7 +8,6 @@ const { getCRTIME } = require('../../modules/datetimeconverter');
 module.exports = async (req, res) => {
     try {
         const { id, password, retype } = req.body;
-        console.log(req.body);
         //세 정보 중 하나라도 빠졌다면, 가입 불가함
         if (!id || !password || !retype) {
             return res.status(400).json({ message: '회원가입에 실패했습니다' });
@@ -49,8 +48,6 @@ module.exports = async (req, res) => {
             USERPW: password,
             CRTIME: getCRTIME(),
         });
-
-        console.log('신규가입자 정보', newUser);
 
         return res.status(201).json({
             data: {

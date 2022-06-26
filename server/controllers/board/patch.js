@@ -5,11 +5,9 @@ const { getCRTIME } = require('../../modules/datetimeconverter');
 
 module.exports = async (req, res) => {
     try {
-        console.log('수정요청');
         //수정할 게시물의 BID
         const { id: BID } = req.params;
         const { title, content, attachmentfiles } = req.body;
-        console.log(title, content, attachmentfiles, '요청바디');
         //예외처리
         if (!BID || !title || !content || attachmentfiles === undefined) {
             return res
@@ -27,7 +25,6 @@ module.exports = async (req, res) => {
         );
 
         const newPost = await board.findByPk(BID);
-        console.log(newPost, '수정된 게시물');
 
         //새롭게 올릴 첨부파일이 있는 경우 테이블에 등록해야 한다.
         if (attachmentfiles.length > 0) {
@@ -35,8 +32,6 @@ module.exports = async (req, res) => {
                 file.BID = newPost.BID;
                 file.CRTIME = getCRTIME();
             });
-
-            console.log(attachmentfiles, '수정한 첨부파일 목록');
 
             //주어진 첨부파일 배열을 이용해 insert
             await attachmentfile.bulkCreate(attachmentfiles);

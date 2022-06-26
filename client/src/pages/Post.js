@@ -22,7 +22,6 @@ function Post() {
         getPost();
     }, []);
 
-    console.log(location.state, '<Post>현재 값');
     const getPost = () => {
         axios
             .get(
@@ -32,7 +31,6 @@ function Post() {
                 },
             )
             .then((res) => {
-                console.log(res.data.data, '게시물 상세 정보');
                 setBoard({
                     ...board,
                     No: location.state.No,
@@ -64,7 +62,6 @@ function Post() {
     };
 
     const handleDelete = () => {
-        console.log('삭제요청');
         axios
             .patch(
                 `${process.env.REACT_APP_API_URL}/board`,
@@ -84,8 +81,6 @@ function Post() {
                 }
             });
     };
-
-    console.log(board.ATTACHMENTFILES, '<Post>에서의 첨부파일 상태');
 
     return (
         <Layout>
