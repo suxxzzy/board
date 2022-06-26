@@ -10,9 +10,3 @@ export const SignButton = styled.button`
         color: white;
     }
 `;
-
-// function Button({ children, handleLogin }) {
-//     return <ButtonContainer onClick={handleLogin}>{children}</ButtonContainer>;
-// }
-
-// export default Button;

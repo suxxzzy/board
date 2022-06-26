@@ -1,48 +1,5 @@
-import React, { useState } from 'react';
 import styled from 'styled-components';
-
-const PageUl = styled.ul`
-    margin-top: 20px;
-    float: left;
-    list-style: none;
-    text-align: center;
-    color: white;
-    padding: 1px;
-    background-color: #a3cca3;
-
-    .currentPage {
-        background-color: green;
-    }
-
-    .page {
-        background-color: #a3cca3;
-    }
-`;
-
-const PageLi = styled.li`
-    display: inline-block;
-    font-size: 17px;
-    font-weight: 600;
-    padding: 5px;
-    width: 30px;
-    &:hover {
-        cursor: pointer;
-        color: white;
-        background-color: #688268;
-    }
-    &:focus::after {
-        color: white;
-        background-color: #688268;
-    }
-`;
-
-const PageSpan = styled.span`
-    &:hover::after,
-    &:focus::after {
-        color: white;
-        background-color: #688268;
-    }
-`;
+import React, { useState } from 'react';
 
 const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
     //페이지 시작정보
@@ -70,10 +27,14 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
 
     //다음의 페이지 보여주는 함수
     const gotoNext = () => {
-        //게시물이 30개 미만이거나 마지막에서 1,2,3,4번째 페이지라면
+        const totalPages = Math.ceil(totalPosts / 10);
+        //전체 페이지수가 4개 미만
+        //전체 페이지수가 4의 배수이고 시작 페이지 위치가 전체페이지 -3일때
+        //전체 페이지가 4의 배수가 아닐 때:
         if (
-            pageNumbers.length < 4 ||
-            currentPage >= Math.ceil(totalPosts / 10) - 3
+            totalPages <= 4 ||
+            start === totalPages - 3 ||
+            start === totalPages - (totalPages % 4) + 1
         ) {
             return;
         }
@@ -118,5 +79,48 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
         </div>
     );
 };
+
+const PageUl = styled.ul`
+    margin-top: 20px;
+    float: left;
+    list-style: none;
+    text-align: center;
+    color: white;
+    padding: 1px;
+    background-color: #a3cca3;
+
+    .currentPage {
+        background-color: green;
+    }
+
+    .page {
+        background-color: #a3cca3;
+    }
+`;
+
+const PageLi = styled.li`
+    display: inline-block;
+    font-size: 17px;
+    font-weight: 600;
+    padding: 5px;
+    width: 30px;
+    &:hover {
+        cursor: pointer;
+        color: white;
+        background-color: #688268;
+    }
+    &:focus::after {
+        color: white;
+        background-color: #688268;
+    }
+`;
+
+const PageSpan = styled.span`
+    &:hover::after,
+    &:focus::after {
+        color: white;
+        background-color: #688268;
+    }
+`;
 
 export default Pagination;

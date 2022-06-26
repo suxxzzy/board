@@ -1,7 +1,7 @@
 module.exports = {
     getCRTIME: () => {
         //현재 날짜 정보 구하기
-        const pad = function (number, length) {
+        const addzero = function (number, length) {
             let str = '' + number;
             while (str.length < length) {
                 str = '0' + str;
@@ -11,11 +11,11 @@ module.exports = {
 
         Date.prototype.YYYYMMDDHHMMSS = function () {
             const yyyy = this.getFullYear().toString();
-            const MM = pad(this.getMonth() + 1, 2);
-            const dd = pad(this.getDate(), 2);
-            const hh = pad(this.getHours(), 2);
-            const mm = pad(this.getMinutes(), 2);
-            const ss = pad(this.getSeconds(), 2);
+            const MM = addzero(this.getMonth() + 1, 2);
+            const dd = addzero(this.getDate(), 2);
+            const hh = addzero(this.getHours(), 2);
+            const mm = addzero(this.getMinutes(), 2);
+            const ss = addzero(this.getSeconds(), 2);
 
             return yyyy + MM + dd + hh + mm + ss;
         };

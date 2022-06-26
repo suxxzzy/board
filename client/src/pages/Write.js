@@ -8,8 +8,7 @@ function Write() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [preview, setPreview] = useState('');
-    const [tempAttachmentfiles, setTempAttachmentfiles] = useState([]); //s3에 올라갈 파일 그 자체
-    const [attachmentfiles, setAttachmentfiles] = useState([]); //실질적으로 db에 올릴 파일정보
+    const [attachmentfiles, setAttachmentfiles] = useState([]); //s3에 올라갈 파일 그 자체
 
     const handleChangeTitle = (e) => {
         setTitle(e.target.value);
@@ -27,9 +26,9 @@ function Write() {
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
         //첨부 개수 제한
-        if (tempAttachmentfiles.length + 1 > 5) {
+        if (attachmentfiles.length + 1 > 5) {
             alert('최대 5개까지만 첨부 가능합니다');
-            setTempAttachmentfiles(tempAttachmentfiles.slice(0, 5));
+            setAttachmentfiles(attachmentfiles.slice(0, 5));
             return;
         }
         //파일은 최대 5개까지만 첨부가능하고, 용량은 1개당 최대 50mb까지만 허용하기
@@ -48,29 +47,29 @@ function Write() {
         };
 
         //업로드할 파일 목록 업데이트하기
-        setTempAttachmentfiles([...tempAttachmentfiles, e.target.files[0]]);
+        setAttachmentfiles([...attachmentfiles, e.target.files[0]]);
     };
 
     //업로드한 파일 삭제:  어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
     const handleDeleteFile = (idx) => {
         //만약 1개 남은 상태서 삭제시
-        if (tempAttachmentfiles.length === 1) {
+        if (attachmentfiles.length === 1) {
             setPreview('');
         }
 
-        setTempAttachmentfiles(
-            tempAttachmentfiles.filter((_, fileidx) => fileidx !== idx),
+        setAttachmentfiles(
+            attachmentfiles.filter((_, fileidx) => fileidx !== idx),
         );
     };
 
     //게시물 등록
     const handlePost = async () => {
-        if (!title || !content || attachmentfiles === undefined) {
+        if (!title || !content) {
             alert('제목과 내용 모두 입력해주세요');
             return;
         }
         //첨부파일이 빈 배열인 경우 바로 axios 요청 보낸다.
-        if (tempAttachmentfiles.length === 0) {
+        if (attachmentfiles.length === 0) {
             //서버에 axios 요청 보내기
             return axios
                 .post(
@@ -78,7 +77,7 @@ function Write() {
                     {
                         title,
                         content,
-                        attachmentfiles, //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
+                        attachmentfiles: [], //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
                     },
                     { withCredentials: true },
                 )
@@ -96,11 +95,11 @@ function Write() {
         //첨부파일이 빈 배열이 아닌 경우
         //s3에 파일을 업로드한다.
         const filePromise = [];
-        for (let i = 0; i < tempAttachmentfiles.length; i++) {
+        for (let i = 0; i < attachmentfiles.length; i++) {
             //업로드를 위한 presignedurl 요청
             const uploadPromise = axios
                 .get(
-                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${tempAttachmentfiles[i].name}`,
+                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${attachmentfiles[i].name}`,
                     { withCredentials: true },
                 )
                 .then(async (res) => {
@@ -109,22 +108,22 @@ function Write() {
 
                     const res_1 = await axios.put(
                         presignedurl,
-                        tempAttachmentfiles[i],
+                        attachmentfiles[i],
                         {
                             headers: {
-                                'Content-Type': tempAttachmentfiles[i].type,
+                                'Content-Type': attachmentfiles[i].type,
                             },
                         },
                     );
                     //버킷의 키 알아내기
                     const key = `${
                         res_1.config.url.split('/')[3].split('-')[0]
-                    }-${tempAttachmentfiles[i].name}`;
+                    }-${attachmentfiles[i].name}`;
                     return {
-                        FILENAME: tempAttachmentfiles[i].name.split('.')[0],
-                        EXT: tempAttachmentfiles[i].name.split('.')[1],
+                        FILENAME: attachmentfiles[i].name.split('.')[0],
+                        EXT: attachmentfiles[i].name.split('.')[1],
                         FILEPATH: key,
-                        SIZE: tempAttachmentfiles[i].size,
+                        SIZE: attachmentfiles[i].size,
                     };
                 });
             filePromise.push(uploadPromise);
@@ -197,7 +196,7 @@ function Write() {
                         </label>
                         {/*첨부한 파일 목록 미리 띄우기*/}
                         <ul>
-                            {tempAttachmentfiles.map((attachmentfile, idx) => {
+                            {attachmentfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
                                         <div>{attachmentfile.name}</div>

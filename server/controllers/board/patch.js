@@ -8,6 +8,7 @@ module.exports = async (req, res) => {
         //수정할 게시물의 BID
         const { id: BID } = req.params;
         const { title, content, attachmentfiles } = req.body;
+        console.log(attachmentfiles, '첨부파일 정보목록');
         //예외처리
         if (!BID || !title || !content || attachmentfiles === undefined) {
             return res

@@ -35,6 +35,7 @@ function Signup() {
         }
     };
 
+    //아이디 유효성 검사 + 중복 검사
     const handleIDCheck = async (id) => {
         if (!isValidID(id)) {
             setIDMessage('형식에 맞지 않는 아이디입니다');

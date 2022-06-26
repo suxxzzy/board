@@ -49,7 +49,7 @@ function PostList({
                     }
                     No={totalPosts - 10 * (currentPage - 1) - idx}
                     BID={post.BID}
-                    UID={Number(post.UID)}
+                    UID={post.UID}
                     TITLE={post.TITLE}
                     USERID={post.UID_user.USERID}
                     CRTIME={post.CRTIME}

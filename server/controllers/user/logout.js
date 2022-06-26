@@ -6,6 +6,8 @@ module.exports = async (req, res) => {
         return res
             .status(200)
             .cookie('accessToken', null, {
+                domain: 'localhost',
+                path: '/',
                 httpOnly: true,
                 maxAge: 0,
             })
