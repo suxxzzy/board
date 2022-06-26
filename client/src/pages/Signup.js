@@ -13,18 +13,23 @@ import {
 
 function Signup() {
     const navigate = useNavigate();
-    const [showMessage, setShowMessage] = useState(false);
+    const [isShowMessage, setIsShowMessage] = useState(false); //유효성검사
     const [IDMessage, setIDMessage] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState(''); //서버 에러 응답
     const [signupInfo, setSignupInfo] = useState({
         id: '',
         password: '',
         retype: '',
     });
 
+    const handleSignupInputValue = (key) => (e) => {
+        setSignupInfo({ ...signupInfo, [key]: e.target.value });
+    };
+
+    //블러 이벤트 시 유효성 검사 결과 보여주기
     const handleBlur = (e) => {
-        setShowMessage(true);
-        // 아이디 유효성 검사 진행
+        setIsShowMessage(true);
+        // 아이디 유효성 검사
         if (e.target.id === 'userid') {
             handleIDCheck(e.target.value);
         }
@@ -35,6 +40,7 @@ function Signup() {
             setIDMessage('형식에 맞지 않는 아이디입니다');
             return false;
         }
+
         let isValid = false;
         await axios
             .post(`${process.env.REACT_APP_API_URL}/user/userid`, { id })
@@ -51,10 +57,7 @@ function Signup() {
         return isValid;
     };
 
-    const handleSignupInputValue = (key) => (e) => {
-        setSignupInfo({ ...signupInfo, [key]: e.target.value });
-    };
-
+    //회원가입 요청
     const handleSignup = async () => {
         const is_Valid_ID = await handleIDCheck(signupInfo.id);
         if (
@@ -73,7 +76,7 @@ function Signup() {
                 })
                 .then((res) => {
                     alert('회원가입 되었습니다');
-                    //회원가입 성공하였음. 로그인 페이지로 이동함
+                    //로그인 페이지로 이동
                     navigate('/');
                 })
                 .catch((error) => {
@@ -96,7 +99,7 @@ function Signup() {
                 onChange={handleSignupInputValue('id')}
                 onBlur={handleBlur}
             />
-            {showMessage ? (
+            {isShowMessage ? (
                 <ValidateMessage
                     color={
                         IDMessage === '사용가능한 아이디입니다' ? 'green' : null
@@ -113,7 +116,7 @@ function Signup() {
                 onChange={handleSignupInputValue('password')}
                 onBlur={handleBlur}
             />
-            {showMessage ? (
+            {isShowMessage ? (
                 <ValidateMessage
                     color={
                         isValidPassword(signupInfo.password) ? 'green' : null
@@ -130,7 +133,7 @@ function Signup() {
                 onChange={handleSignupInputValue('retype')}
                 onBlur={handleBlur}
             />
-            {showMessage ? (
+            {isShowMessage ? (
                 <ValidateMessage
                     color={
                         isSamePassword(signupInfo.password, signupInfo.retype)

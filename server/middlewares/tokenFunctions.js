@@ -4,7 +4,7 @@ require('dotenv').config();
 module.exports = {
     generateAccessToken: (userid) => {
         const accessToken = sign({ id: userid }, process.env.ACCESS_SECRET, {
-            expiresIn: '2h',
+            expiresIn: '24h',
         });
 
         return accessToken;
@@ -12,7 +12,7 @@ module.exports = {
     sendAccessToken: (res, accessToken) => {
         const cookieOptions = {
             httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 2,
+            maxAge: 1000 * 60 * 60 * 24, //24h
         };
 
         return res.cookie('accessToken', accessToken, cookieOptions);

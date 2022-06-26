@@ -19,7 +19,6 @@ function Login() {
     };
 
     const handleLogin = () => {
-        //두 값 모두 유효성 검사 통과한 경우에만 서버에 요청을 보낸다.
         if (loginInfo.id === '' || loginInfo.password === '') {
             setErrorMessage('아이디와 비밀번호 모두 입력하세요');
             return;
@@ -34,7 +33,7 @@ function Login() {
                     { withCredentials: true },
                 )
                 .then((res) => {
-                    window.localStorage.setItem('userID', res.data.data.userid);
+                    window.localStorage.setItem('userID', res.data.data.uid);
                     alert('로그인 되었습니다');
                     navigate('/board');
                 })

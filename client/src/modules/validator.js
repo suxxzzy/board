@@ -1,5 +1,3 @@
-// import axios from 'axios';
-
 export const isValidID = (id) => {
     const regexp = /^[A-Za-z0-9]{4,20}$/;
     return regexp.test(id);

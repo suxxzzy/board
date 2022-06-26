@@ -26,13 +26,13 @@ function Write() {
 
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
+        //첨부 개수 제한
         if (tempAttachmentfiles.length + 1 > 5) {
             alert('최대 5개까지만 첨부 가능합니다');
-            //setPreview()
             setTempAttachmentfiles(tempAttachmentfiles.slice(0, 5));
             return;
         }
-        //파일은 최대 5개까지만 첨부가능하고, 용량은..1개당 최대 50mb까지만 허용하기
+        //파일은 최대 5개까지만 첨부가능하고, 용량은 1개당 최대 50mb까지만 허용하기
         if (e.target.files[0].size > 50 * 1048576) {
             alert('1개당 최대 50mb까지만 첨부가능합니다');
             setPreview('');
@@ -72,7 +72,7 @@ function Write() {
         //첨부파일이 빈 배열인 경우 바로 axios 요청 보낸다.
         if (tempAttachmentfiles.length === 0) {
             //서버에 axios 요청 보내기
-            axios
+            return axios
                 .post(
                     `${process.env.REACT_APP_API_URL}/board`,
                     {
@@ -81,7 +81,7 @@ function Write() {
                         attachmentfiles, //첨부파일이 존재하지 않을 경우 빈 배열로 전달됨
                     },
                     { withCredentials: true },
-                ) //
+                )
                 .then((res) => {
                     //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
                     alert('등록되었습니다');
@@ -142,7 +142,7 @@ function Write() {
                         attachmentfiles: res,
                     },
                     { withCredentials: true },
-                ) //
+                )
                 .then((res) => {
                     alert('등록되었습니다');
                     navigate(`/board/${res.data.data.No}`, {
@@ -184,6 +184,7 @@ function Write() {
                             id="file"
                             value={preview}
                             readOnly={true}
+                            placeholder="개당 최대 50mb, 최대 5개까지 첨부가능"
                         ></input>
                         <input
                             type="file"

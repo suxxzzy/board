@@ -22,6 +22,7 @@ module.exports = async (req, res) => {
             Key: key,
         };
 
+        //파일 읽어들이고 클라이언트에게 전송
         res.attachment(key);
         const fileStream = s3.getObject(options).createReadStream();
         fileStream.pipe(res);
@@ -29,6 +30,6 @@ module.exports = async (req, res) => {
         console.error(e);
         return res
             .status(500)
-            .json({ message: '서버가 presigned URL생성에 실패했습니다' });
+            .json({ message: '서버가 파일 전송에 실패했습니다' });
     }
 };

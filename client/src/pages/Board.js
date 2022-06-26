@@ -15,6 +15,7 @@ import Searchbar from '../components/Searchbar';
 
 function Board() {
     const navigate = useNavigate();
+
     //1회만 새로고침
     window.onload = function () {
         if (!window.location.hash) {
@@ -23,6 +24,7 @@ function Board() {
         }
     };
     window.onload();
+
     const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const [loadedPosts, setLoadedPosts] = useState([]);

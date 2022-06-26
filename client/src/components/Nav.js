@@ -1,30 +1,7 @@
+import styled from 'styled-components';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-import styled from 'styled-components';
 
-const NavComponent = styled.nav`
-    //border: 3px solid blue;
-    padding: 1rem;
-    display: flex;
-    justify-content: flex-end;
-    height: 10%;
-    > ul {
-        display: flex;
-        list-style-type: none;
-        padding-left: 0;
-        margin: 0;
-        > a {
-            > li {
-                // border: 1px solid green;
-                margin: 0 10px;
-                font-weight: bold;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-        }
-    }
-`;
 //로컬스토리지에 userid가 있으면 로그아웃, 게시판 메뉴 보이기. 새로고침!!
 function Nav() {
     const handleLogout = () => {
@@ -66,5 +43,29 @@ function Nav() {
         </NavComponent>
     );
 }
+
+const NavComponent = styled.nav`
+    //border: 3px solid blue;
+    padding: 1rem;
+    display: flex;
+    justify-content: flex-end;
+    height: 10%;
+    > ul {
+        display: flex;
+        list-style-type: none;
+        padding-left: 0;
+        margin: 0;
+        > a {
+            > li {
+                // border: 1px solid green;
+                margin: 0 10px;
+                font-weight: bold;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    }
+`;
 
 export default Nav;

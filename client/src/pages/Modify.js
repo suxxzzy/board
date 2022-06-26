@@ -11,7 +11,7 @@ function Modify() {
     const [content, setContent] = useState(location.state.board.CONTENT);
     const [preview, setPreview] = useState('');
     //s3에도 이미 등록되어 있는 첨부파일의 정보
-    const [attachmentfiles, setAttachmentfiles] = useState(
+    const [s3attachedfiles, sets3Attachedfiles] = useState(
         location.state.board.ATTACHMENTFILES,
     );
     //수정 페이지 접속 후 파일을 임시로 담을 상태값
@@ -27,6 +27,19 @@ function Modify() {
 
     //수정페이지 접속 후 파일 업로드
     const handleUploadFile = (e) => {
+        //첨부 개수 제한
+        if (tempAttachmentfiles.length + s3attachedfiles.length + 1 > 5) {
+            alert('최대 5개까지만 첨부 가능합니다');
+            setTempAttachmentfiles(tempAttachmentfiles.slice(0, 5));
+            return;
+        }
+        //파일은 최대 5개까지만 첨부가능하고, 용량은 1개당 최대 50mb까지만 허용하기
+        if (e.target.files[0].size > 50 * 1048576) {
+            alert('1개당 최대 50mb까지만 첨부가능합니다');
+            setPreview('');
+            return;
+        }
+
         const reader = new FileReader();
         reader.readAsDataURL(e.target.files[0]);
 
@@ -50,14 +63,14 @@ function Modify() {
     //수정 전 업로드한 파일 삭제
     //수정 취소할 경우를 대비해서, 렌더링만 처리한다
     const handleDeleteFileOnS3 = (idx) => {
-        setAttachmentfiles(
-            attachmentfiles.filter((_, fileidx) => fileidx !== idx),
+        sets3Attachedfiles(
+            s3attachedfiles.filter((_, fileidx) => fileidx !== idx),
         );
     };
 
     //게시물 수정완료
     const handleModify = async () => {
-        if (!title || !content || attachmentfiles === undefined) {
+        if (!title || !content || tempAttachmentfiles === undefined) {
             alert('제목과 내용 모두 입력해주세요');
             return;
         }
@@ -68,11 +81,11 @@ function Modify() {
         );
 
         //화면에서 보이는 기존 파일
-        const attKeys = attachmentfiles.map((file) => file.FILEPATH);
+        const s3filePath = s3attachedfiles.map((file) => file.FILEPATH);
 
         //기존의 파일에서 삭제한 내역 구하기
         const deletes = keys
-            .filter((Key) => !attKeys.includes(Key))
+            .filter((Key) => !s3filePath.includes(Key))
             .map((Key) => {
                 return { Key };
             });
@@ -143,7 +156,7 @@ function Modify() {
                             {
                                 title,
                                 content,
-                                attachmentfiles: res,
+                                s3attachedfiles: res,
                             },
                             { withCredentials: true },
                         )
@@ -172,7 +185,7 @@ function Modify() {
                 return axios
                     .patch(
                         `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
-                        { title, content, attachmentfiles: [] },
+                        { title, content, attachedfiles: [] },
                         { withCredentials: true },
                     )
                     .then((res) => {
@@ -246,6 +259,7 @@ function Modify() {
             }
         }
     };
+
     //수정 취소
     const goBack = () => {
         navigate(-1);
@@ -278,6 +292,7 @@ function Modify() {
                             id="file"
                             value={preview}
                             readOnly={true}
+                            placeholder="개당 최대 50mb, 최대 5개까지 첨부가능"
                         ></input>
                         <input
                             type="file"
@@ -290,7 +305,7 @@ function Modify() {
                         </label>
                         <ul>
                             {/*기존에 있었던 파일 목록*/}
-                            {attachmentfiles.map((attachmentfile, idx) => {
+                            {s3attachedfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
                                         <div>{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</div>

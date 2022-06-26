@@ -9,7 +9,7 @@ const {
 
 module.exports = async (req, res) => {
     try {
-        //사용자로붜 아이디와 비밀번호를 받는다
+        //사용자로부터 아이디와 비밀번호를 받는다
         const { id, password } = req.body;
         if (!id || !password) {
             return res.status(400).json({ message: '로그인에 실패했습니다' });
@@ -35,7 +35,7 @@ module.exports = async (req, res) => {
 
         sendAccessToken(res, accessToken);
         return res.status(200).json({
-            data: { userid: existUser.UID },
+            data: { uid: existUser.UID },
             message: '로그인에 성공했습니다',
         });
     } catch (e) {

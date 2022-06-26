@@ -68,9 +68,13 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
         setCurrentPage(start - 4);
     };
 
-    //다음의 페이지 보여주는 함수. 꼭 4페이지씩 안 나올수도 있다.
+    //다음의 페이지 보여주는 함수
     const gotoNext = () => {
-        if (pageNumbers.length < 4) {
+        //게시물이 30개 미만이거나 마지막에서 1,2,3,4번째 페이지라면
+        if (
+            pageNumbers.length < 4 ||
+            currentPage >= Math.ceil(totalPosts / 10) - 3
+        ) {
             return;
         }
 
