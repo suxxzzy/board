@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { getPresignedUrl } from '../modules/getPresignedUrl';
 
 function Write() {
     const navigate = useNavigate();
@@ -98,44 +99,8 @@ function Write() {
                     });
                 });
         }
-        //첨부파일이 빈 배열이 아닌 경우
-        //s3에 파일을 업로드한다.
-        const filePromise = [];
-        for (let i = 0; i < attachmentfiles.length; i++) {
-            //업로드를 위한 presignedurl 요청
-            const uploadPromise = axios
-                .get(
-                    `${process.env.REACT_APP_API_URL}/attachmentfile/presignedurl?filename=${attachmentfiles[i].name}`,
-                    { withCredentials: true },
-                )
-                .then(async (res) => {
-                    //첨부파일 업로드
-                    const presignedurl = res.data.data.signedUrl;
 
-                    const res_1 = await axios.put(
-                        presignedurl,
-                        attachmentfiles[i],
-                        {
-                            headers: {
-                                'Content-Type': attachmentfiles[i].type,
-                            },
-                        },
-                    );
-                    //버킷의 키 알아내기
-                    const key = `${
-                        res_1.config.url.split('/')[3].split('-')[0]
-                    }-${attachmentfiles[i].name}`;
-                    return {
-                        FILENAME: attachmentfiles[i].name.split('.')[0],
-                        EXT: attachmentfiles[i].name.split('.')[1],
-                        FILEPATH: key,
-                        SIZE: attachmentfiles[i].size,
-                    };
-                });
-            filePromise.push(uploadPromise);
-        }
-
-        Promise.all(filePromise).then((res) => {
+        Promise.all(getPresignedUrl(attachmentfiles)).then((res) => {
             //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
             //서버에 axios 요청 보내기
             axios
