@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React, { useState } from 'react';
 
 const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
-    //페이지 시작정보
+    //각 페이지 그룹에서 가장 첫번째 페이지를 말함: 1,5,9,13페이지. 하나의 페이지 그룹=4페이지
     const [start, setStart] = useState(currentPage - ((currentPage % 4) - 1));
 
     //전체 페이지 수
