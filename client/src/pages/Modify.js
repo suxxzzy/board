@@ -129,7 +129,6 @@ function Modify() {
             } else {
                 //업로드할 파일이 존재
                 Promise.all(getPresignedUrl(newAttachmentfiles)).then((res) => {
-                    console.log(res, '결과값');
                     axios
                         .patch(
                             `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
