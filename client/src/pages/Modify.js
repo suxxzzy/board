@@ -28,16 +28,6 @@ function Modify() {
 
     //수정페이지 접속 후 파일 업로드
     const handleUploadFile = (e) => {
-        const filenames = newAttachmentfiles.map((el) => el.name);
-        const s3Filenames = s3attachedfiles.map((el) => el.NAME);
-        //중복 첨부 제외
-        if (
-            filenames.includes(e.target.files[0].name) ||
-            s3Filenames.includes(e.target.files[0].name)
-        ) {
-            alert('이미 첨부한 파일입니다');
-            return;
-        }
         //첨부 개수 제한
         if (newAttachmentfiles.length + s3attachedfiles.length + 1 > 5) {
             alert('최대 5개까지만 첨부 가능합니다');
