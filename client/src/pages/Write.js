@@ -89,7 +89,7 @@ function Write() {
                     { withCredentials: true },
                 )
                 .then((res) => {
-                    //새로 생성된 게시글 페이지로 이동.....새로 생성한 게시물의 개수===화면에서 보일 no.는 어떻게 알아내지? 백엔드에서 계산해줘야함
+                    //새로 생성된 게시글 페이지로 이동
                     alert('등록되었습니다');
                     navigate(`/board/${res.data.data.No}`, {
                         state: {

@@ -127,6 +127,7 @@ function Modify() {
                         });
                     });
             } else {
+                //업로드할 파일이 존재
                 Promise.all(getPresignedUrl(newAttachmentfiles)).then((res) => {
                     console.log(res, '결과값');
                     axios
@@ -177,6 +178,7 @@ function Modify() {
                         });
                     });
             } else {
+                //업로드할 파일이 존재
                 Promise.all(getPresignedUrl(newAttachmentfiles)).then((res) => {
                     axios
                         .patch(

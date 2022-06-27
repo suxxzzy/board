@@ -14,6 +14,7 @@ module.exports = async (req, res) => {
         if (!id || !password) {
             return res.status(400).json({ message: '로그인에 실패했습니다' });
         }
+
         //존재하지 않는 아이디인 경우
         const existUser = await user.findOne({ where: { USERID: id } });
         if (!existUser) {

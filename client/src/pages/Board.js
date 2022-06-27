@@ -7,7 +7,7 @@ import {
     ButtonList,
 } from '../components/Div';
 import { useEffect, useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import LoadingIndicator from '../components/LoadingIndicator';
 import PostList from '../components/PostList';
 import Pagination from '../components/Pagination';

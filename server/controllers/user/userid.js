@@ -7,12 +7,14 @@ module.exports = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: '아이디가 없습니다' });
         }
+
         //아이디가 유효성 검사를 통과하지 않은 경우
         if (!isValidID(id)) {
             return res
                 .status(400)
                 .json({ message: 'id가 유효한 형식이 아닙니다' });
         }
+
         //같은 아이디가 이미 존재하는 경우
         const userWithSameID = await user.findOne({ where: { USERID: id } });
         if (userWithSameID) {
