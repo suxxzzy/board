@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { timeConverter_Post } from '../modules/datetimeconverter';
+import { fileSizeConverter } from '../modules/fileSizeConverter';
 
 function Post() {
     const location = useLocation();
@@ -101,7 +102,11 @@ function Post() {
                                     <a
                                         href={`${process.env.REACT_APP_API_URL}/attachmentfile/object?key=${attachmentfile.FILEPATH}`}
                                         download={`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}
-                                    >{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</a>
+                                    >{`${attachmentfile.FILENAME}.${
+                                        attachmentfile.EXT
+                                    } [${fileSizeConverter(
+                                        attachmentfile.SIZE,
+                                    )}mb]`}</a>
                                 </li>
                             );
                         })}

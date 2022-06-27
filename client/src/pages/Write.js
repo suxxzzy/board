@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { fileSizeConverter } from '../modules/fileSizeConverter';
 import { getPresignedUrl } from '../modules/getPresignedUrl';
 
 function Write() {
@@ -32,7 +33,7 @@ function Write() {
             setAttachmentfiles(attachmentfiles.slice(0, 5));
             return;
         }
-        //파일은 최대 5개까지만 첨부가능하고, 용량은 1개당 최대 50mb까지만 허용하기
+        //용량은 1개당 최대 50mb까지만 허용하기
         if (e.target.files[0].size > 50 * 1048576) {
             alert('1개당 최대 50mb까지만 첨부가능합니다');
             setPreview('');
@@ -49,6 +50,9 @@ function Write() {
 
         //업로드할 파일 목록 업데이트하기
         setAttachmentfiles([...attachmentfiles, e.target.files[0]]);
+
+        //같은 파일도 올릴 수 있도록.
+        e.target.value = '';
     };
 
     //업로드한 파일 삭제:  어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
@@ -153,7 +157,6 @@ function Write() {
                         <input
                             type="file"
                             id="fileupload"
-                            style={{ display: 'none' }}
                             onChange={handleUploadFile}
                         ></input>
                         <label htmlFor="fileupload" id="find">
@@ -164,7 +167,11 @@ function Write() {
                             {attachmentfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
-                                        <div>{attachmentfile.name}</div>
+                                        <div>{`${
+                                            attachmentfile.name
+                                        } [${fileSizeConverter(
+                                            attachmentfile.size,
+                                        )}mb]`}</div>
                                         <button
                                             onClick={() =>
                                                 handleDeleteFile(idx)
@@ -215,6 +222,9 @@ const Layout = styled.section`
             &:focus {
                 outline: none;
             }
+        }
+        #fileupload {
+            display: none;
         }
         #find {
             background-color: gray;

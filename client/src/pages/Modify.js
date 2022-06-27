@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import axios from 'axios';
 import { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
+import { fileSizeConverter } from '../modules/fileSizeConverter';
 import { getPresignedUrl } from '../modules/getPresignedUrl';
 
 function Modify() {
@@ -53,6 +54,9 @@ function Modify() {
 
         //업로드할 파일 목록 업데이트하기
         setNewAttachmentfiles([...newAttachmentfiles, e.target.files[0]]);
+
+        //같은 파일도 올릴 수 있도록.
+        e.target.value = '';
     };
 
     //수정페이지 접속 후 올린 파일을 삭제
@@ -241,7 +245,11 @@ function Modify() {
                             {s3attachedfiles.map((attachmentfile, idx) => {
                                 return (
                                     <li key={idx}>
-                                        <div>{`${attachmentfile.FILENAME}.${attachmentfile.EXT}`}</div>
+                                        <div>{`${attachmentfile.FILENAME}.${
+                                            attachmentfile.EXT
+                                        } [${fileSizeConverter(
+                                            attachmentfile.SIZE,
+                                        )}mb]`}</div>
                                         <button
                                             onClick={() =>
                                                 handleDeleteFileOnS3(idx)
@@ -257,7 +265,11 @@ function Modify() {
                                 (tempAttachmentfile, idx) => {
                                     return (
                                         <li key={idx}>
-                                            <div>{tempAttachmentfile.name}</div>
+                                            <div>{`${
+                                                tempAttachmentfile.name
+                                            } [${fileSizeConverter(
+                                                tempAttachmentfile.size,
+                                            )}mb]`}</div>
                                             <button
                                                 onClick={() =>
                                                     handleDeleteNewFile(idx)
@@ -309,6 +321,9 @@ const Layout = styled.section`
             &:focus {
                 outline: none;
             }
+        }
+        #fileupload {
+            display: none;
         }
         #find {
             background-color: gray;
