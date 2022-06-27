@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
         const command = new PutObjectCommand(bucketParams);
 
         const signedUrl = await getSignedUrl(s3Client, command, {
-            expiresIn: 3600,
+            expiresIn: 900, //15min
         });
 
         return res.status(200).json({
