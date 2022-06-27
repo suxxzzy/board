@@ -2,11 +2,7 @@
 //서버 측에서 해당 정보를 모두 검증해 줄 필요가 있다.
 //클라이언트에서 막는다 해도, 우회할 방법은 있음
 const { user } = require('../../models/index');
-const {
-    isValidID,
-    isValidPassWord,
-    isSamePassword,
-} = require('../../modules/validator');
+const { isValidID, isValidPassWord } = require('../../modules/validator');
 const { getCRTIME } = require('../../modules/datetimeconverter');
 const { request } = require('express');
 
@@ -30,13 +26,6 @@ module.exports = async (req, res) => {
             return res
                 .status(400)
                 .json({ message: '비밀번호가 유효한 형식이 아닙니다' });
-        }
-
-        //비밀번호와 재입력이 일치하지 않는 경우
-        if (!isSamePassword) {
-            return res
-                .status(400)
-                .json({ message: '비밀번호가 일치하지 않습니다' });
         }
 
         //같은 아이디가 이미 존재하는 경우

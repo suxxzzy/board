@@ -8,7 +8,4 @@ module.exports = {
             /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,20}$/;
         return regexp.test(password);
     },
-    isSamePassword: (password, retype) => {
-        return password === retype;
-    },
 };
