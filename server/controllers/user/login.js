@@ -4,12 +4,8 @@ const {
     sendAccessToken,
 } = require('../../middlewares/tokenFunctions');
 
-//아이디와 비밀번호가 둘 다입력, 일치할 경우, 토큰을 발급하고
-//쿠키에 담아서 응답. 그리고 사용자 아이디도 같이 담아준다.
-
 module.exports = async (req, res) => {
     try {
-        //사용자로부터 아이디와 비밀번호를 받는다
         const { id, password } = req.body;
         if (!id || !password) {
             return res.status(400).json({ message: '로그인에 실패했습니다' });

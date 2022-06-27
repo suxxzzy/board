@@ -13,7 +13,7 @@ export const getPresignedUrl = (newAttachmentfiles) => {
                 //첨부파일 업로드
                 const presignedurl = res.data.data.signedUrl;
 
-                const res_1 = await axios.put(
+                const fileInfo = await axios.put(
                     presignedurl,
                     newAttachmentfiles[i],
                     {
@@ -23,9 +23,9 @@ export const getPresignedUrl = (newAttachmentfiles) => {
                     },
                 );
                 //버킷의 키 알아내기
-                const key = `${res_1.config.url.split('/')[3].split('-')[0]}-${
-                    newAttachmentfiles[i].name
-                }`;
+                const key = `${
+                    fileInfo.config.url.split('/')[3].split('-')[0]
+                }-${newAttachmentfiles[i].name}`;
                 return {
                     FILENAME: newAttachmentfiles[i].name.split('.')[0],
                     EXT: newAttachmentfiles[i].name.split('.')[1],
