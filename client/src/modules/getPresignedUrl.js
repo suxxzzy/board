@@ -26,6 +26,7 @@ export const getPresignedUrl = (newAttachmentfiles) => {
                 const key = `${
                     fileInfo.config.url.split('/')[3].split('-')[0]
                 }-${newAttachmentfiles[i].name}`;
+
                 return {
                     FILENAME: newAttachmentfiles[i].name.split('.')[0],
                     EXT: newAttachmentfiles[i].name.split('.')[1],
