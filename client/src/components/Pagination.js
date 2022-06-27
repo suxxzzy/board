@@ -5,11 +5,14 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
     //페이지 시작정보
     const [start, setStart] = useState(currentPage - ((currentPage % 4) - 1));
 
+    //전체 페이지 수
+    const totalPages = Math.ceil(totalPosts / 10);
+
     //페이지 번호 채우기
     const pageNumbers = [];
     for (
         let i = start;
-        i <= Math.min(start + 3, Math.ceil(totalPosts / 10));
+        i <= Math.min(start + 3, totalPages); //페이지 개수가 3개 이하이거나, 그 이상인 경우를 고려
         i++
     ) {
         pageNumbers.push(i);
@@ -27,7 +30,6 @@ const Pagination = ({ totalPosts, currentPage, setCurrentPage }) => {
 
     //다음의 페이지 보여주는 함수
     const gotoNext = () => {
-        const totalPages = Math.ceil(totalPosts / 10);
         //전체 페이지수가 4개 이하
         //전체 페이지수가 4의 배수이고 시작 페이지 위치가 전체페이지 -3일때
         //전체 페이지가 4의 배수가 아닐 때:
