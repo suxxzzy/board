@@ -32,7 +32,7 @@ app.use(cookieParser());
 //모든 루트 요청은 indexRouter로!
 app.use('/', indexRouter);
 
-//배포 환경에서 정상 응답 받는지 테스트하는 코드
+//정상 응답 받는지 테스트하는 코드
 app.get('/', (req, res) => {
     res.send('hello world');
 });
