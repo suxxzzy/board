@@ -50,6 +50,8 @@ function Modify() {
         //파일명 미리보기 띄우기
         reader.onload = () => {
             setPreview(e.target.files[0].name);
+            //같은 파일도 올릴 수 있도록.
+            e.target.value = '';
         };
 
         //업로드할 파일 목록 업데이트하기

@@ -27,6 +27,8 @@ function Write() {
 
     //화면상에 렌더링하고, 바로 s3에 올리지는 않는다.
     const handleUploadFile = (e) => {
+        //console.log(e.target.files[0].name, '파일정보');
+
         //첨부 개수 제한
         if (attachmentfiles.length + 1 > 5) {
             alert('최대 5개까지만 첨부 가능합니다');
@@ -46,13 +48,12 @@ function Write() {
         //파일명 미리보기 띄우기
         reader.onload = () => {
             setPreview(e.target.files[0].name);
+            //같은 파일도 올릴 수 있도록.
+            e.target.value = '';
         };
 
         //업로드할 파일 목록 업데이트하기
         setAttachmentfiles([...attachmentfiles, e.target.files[0]]);
-
-        //같은 파일도 올릴 수 있도록.
-        e.target.value = '';
     };
 
     //업로드한 파일 삭제:  어짜피 s3에 안 올렸으니까, 그냥 배열에서만 삭제하면 된다.
