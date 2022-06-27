@@ -22,6 +22,7 @@ function Signup() {
         retype: '',
     });
 
+    //회원가입 인풋 상태
     const handleSignupInputValue = (key) => (e) => {
         setSignupInfo({ ...signupInfo, [key]: e.target.value });
     };
