@@ -99,7 +99,7 @@ function Write() {
                 });
         }
 
-        Promise.all(getPresignedUrl(attachmentfiles)).then((res) => {
+        Promise.all(getPresignedUrl(attachmentfiles)).then((fileInfo) => {
             //s3에 파일이 정상적으로 업로드되었다면 DB에 파일 정보를 저장하면 된다.
             //서버에 axios 요청 보내기
             axios
@@ -108,7 +108,7 @@ function Write() {
                     {
                         title,
                         content,
-                        attachmentfiles: res,
+                        attachmentfiles: fileInfo,
                     },
                     { withCredentials: true },
                 )

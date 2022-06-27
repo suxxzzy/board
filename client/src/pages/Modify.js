@@ -124,27 +124,29 @@ function Modify() {
                     });
             } else {
                 //업로드할 파일이 존재
-                Promise.all(getPresignedUrl(newAttachmentfiles)).then((res) => {
-                    axios
-                        .patch(
-                            `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
-                            {
-                                title,
-                                content,
-                                attachmentfiles: res,
-                            },
-                            { withCredentials: true },
-                        )
-                        .then((res) => {
-                            alert('수정되었습니다');
-                            navigate(`/board/${location.state.board.No}`, {
-                                state: {
-                                    No: location.state.board.No,
-                                    BID: location.state.board.BID,
+                Promise.all(getPresignedUrl(newAttachmentfiles)).then(
+                    (fileInfo) => {
+                        axios
+                            .patch(
+                                `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                                {
+                                    title,
+                                    content,
+                                    attachmentfiles: fileInfo,
                                 },
+                                { withCredentials: true },
+                            )
+                            .then((res) => {
+                                alert('수정되었습니다');
+                                navigate(`/board/${location.state.board.No}`, {
+                                    state: {
+                                        No: location.state.board.No,
+                                        BID: location.state.board.BID,
+                                    },
+                                });
                             });
-                        });
-                });
+                    },
+                );
             }
         } else {
             //s3에 삭제할 파일이 존재하는 경우
@@ -174,27 +176,29 @@ function Modify() {
                     });
             } else {
                 //업로드할 파일이 존재
-                Promise.all(getPresignedUrl(newAttachmentfiles)).then((res) => {
-                    axios
-                        .patch(
-                            `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
-                            {
-                                title,
-                                content,
-                                attachmentfiles: res,
-                            },
-                            { withCredentials: true },
-                        )
-                        .then((res) => {
-                            alert('수정되었습니다');
-                            navigate(`/board/${location.state.board.No}`, {
-                                state: {
-                                    No: location.state.board.No,
-                                    BID: location.state.board.BID,
+                Promise.all(getPresignedUrl(newAttachmentfiles)).then(
+                    (fileInfo) => {
+                        axios
+                            .patch(
+                                `${process.env.REACT_APP_API_URL}/board/${location.state.board.BID}`,
+                                {
+                                    title,
+                                    content,
+                                    attachmentfiles: fileInfo,
                                 },
+                                { withCredentials: true },
+                            )
+                            .then((res) => {
+                                alert('수정되었습니다');
+                                navigate(`/board/${location.state.board.No}`, {
+                                    state: {
+                                        No: location.state.board.No,
+                                        BID: location.state.board.BID,
+                                    },
+                                });
                             });
-                        });
-                });
+                    },
+                );
             }
         }
     };
